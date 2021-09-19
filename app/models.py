@@ -17,3 +17,8 @@ class User(Base):
     email = Column(String(256), unique=True)
     name = Column(String(256))
 
+class OrgUser(Base):
+    __tablename__ = "org_user"
+    
+    org_id = Column(Integer, ForeignKey("organizations.id"), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
