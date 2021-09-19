@@ -3,10 +3,8 @@ from pydantic import BaseModel
 
 from .generic import ResponseBase
 
-
 class OrganizationBase(BaseModel):
     name: str
-
 
 class OrganizationCreate(OrganizationBase):
     pass

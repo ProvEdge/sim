@@ -42,8 +42,8 @@ def read_organization_by_id(id: int, db: Session = Depends(get_db)):
             str(e)
         )
 
-@router.get("/{name}", response_model=Union[organization_schema.GetOrganizationResponse, generic.ResponseBase])
-def read_organization_by_name(name: int, db: Session = Depends(get_db)):
+@router.get("/name/{name}", response_model=Union[organization_schema.GetOrganizationResponse, generic.ResponseBase])
+def read_organization_by_name(name: str, db: Session = Depends(get_db)):
     try:
         db_org = organization_crud.get_organization_by_name(db, name=name)
         if db_org is None:
@@ -112,7 +112,7 @@ def edit_organization(org: organization_schema.OrganizationCreate, id: int, db: 
         )
 
 @router.delete("/{id}", response_model=Union[organization_schema.GetOrganizationResponse, generic.ResponseBase])
-def read_organization_by_id(id: int, db: Session = Depends(get_db)):
+def delete_organization(id: int, db: Session = Depends(get_db)):
     try:
         db_org = organization_crud.get_organization(db, id=id)
         if db_org is None:
