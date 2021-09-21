@@ -5,14 +5,14 @@ from typing import Union
 from database.schemas import generic, keycloak_schema
 from app.functions import general_functions, keycloak_auth
 
-from . import organizations, users
+from . import groups, users
 
 router = APIRouter()
 
 router.include_router(
-    organizations.router,
-    prefix="/organizations",
-    tags=["Organizations"]
+    groups.router,
+    prefix="/groups",
+    tags=["Groups"]
     #responses={418: {"description": "I'm a teapot"}},
 )
 

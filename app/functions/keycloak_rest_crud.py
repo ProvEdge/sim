@@ -31,18 +31,6 @@ def get_user(admin_access_token: str, id: str):
     response_json = {"user": response.json()}
     return response_json
 
-def get_user(admin_access_token: str, id: str):
-    
-    route = "/kubernetes-platform/users/" + id
-    url = keycloak_server_url + route
-    auth_header = {
-        "Authorization": "Bearer " + admin_access_token
-    }
-
-    response = requests.get(url=url, headers=auth_header)
-    response_json = {"user": response.json()}
-    return response_json
-
 def edit_user(admin_access_token: str, id: str, data: EditUser):
 
     route = "/kubernetes-platform/users/" + id
@@ -91,6 +79,19 @@ def delete_user(admin_access_token: str, id: str):
     
     return return_message
 
+def get_users_groups(admin_access_token: str, id: str):
+    
+    route = "/kubernetes-platform/users/" + id + "/groups"
+    url = keycloak_server_url + route
+    auth_header = {
+        "Authorization": "Bearer " + admin_access_token
+    }
+
+    response = requests.get(url=url, headers=auth_header)
+    response_json = {"groups": response.json()}
+    return response_json
+    
+
 def get_groups(admin_access_token: str):
     
     route = "/kubernetes-platform/groups"
@@ -100,5 +101,16 @@ def get_groups(admin_access_token: str):
     }
 
     response = requests.get(url=url, headers=auth_header)
-    response_json = {"groups": response.json()}
-    return response_json
+    return response.json()
+
+
+def get_group(admin_access_token: str, id: str):
+    
+    route = "/kubernetes-platform/groups/" + id
+    url = keycloak_server_url + route
+    auth_header = {
+        "Authorization": "Bearer " + admin_access_token
+    }
+
+    response = requests.get(url=url, headers=auth_header)
+    return response.json()

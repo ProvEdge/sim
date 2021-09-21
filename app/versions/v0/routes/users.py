@@ -68,3 +68,13 @@ def delete_keycloak_users(id: str):
         
     except Exception as e:
         return generate_response(status="FAILURE", message=str(e))
+
+
+@router.get("/{id}/groups", response_model=Union[dict, generic.ResponseBase])
+def get_users_groups(id: str):
+    try:
+        admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
+        groups = keycloak_rest_crud.get_users_groups(admin_access_token=admin_access_token, id=id)
+        return groups
+    except Exception as e:
+        return generate_response(status="FAILURE", message=str(e))
