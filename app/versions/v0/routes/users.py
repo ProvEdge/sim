@@ -1,203 +1,70 @@
 from fastapi import Depends, APIRouter
+from pydantic.main import BaseModel
 from sqlalchemy.orm import Session
-from typing import Union
+from typing import Any, Union, List, Optional
 
 from app import models
-from database.schemas import generic, user_schema, org_user_schema
+from database.schemas import generic, keycloak_schema, user_schema, org_user_schema
 from database.database import engine
 
-from app.functions import user_crud
+from app.functions import keycloak_rest_crud, user_crud, keycloak_auth
 from app.functions.general_functions import get_db, generate_response
 
 models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
 
-@router.get("", response_model=Union[user_schema.ListUsersResponse, generic.ResponseBase])
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+@router.get("", response_model=Union[dict, generic.ResponseBase])
+def get_keycloak_users():
     try:
-        users = user_crud.get_users(db, skip=skip, limit=limit)
-        return generate_response("SUCCESS", "Users are returned", users)
+        admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
+        users = keycloak_rest_crud.get_users(admin_access_token=admin_access_token)
+        return users
     except Exception as e:
         return generate_response(status="FAILURE", message=str(e))
 
 
-@router.get("/{id}", response_model=Union[user_schema.GetUserResponse, generic.ResponseBase])
-def read_user_by_id(id: int, db: Session = Depends(get_db)):
+@router.get("/{id}", response_model=Union[dict, generic.ResponseBase])
+def get_keycloak_users(id: str):
     try:
-        db_user = user_crud.get_user(db, id=id)
-        if db_user is None:
-            return generate_response(
-                "FAILURE",
-                "No such a user found"
-            )
+        admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
+        user = keycloak_rest_crud.get_user(admin_access_token=admin_access_token, id=id)
+        return user
+    except Exception as e:
+        return generate_response(status="FAILURE", message=str(e))
+
+
+class EditUser(BaseModel):
+    email: Optional[str]
+    firstName: Optional[str]
+    lastName: Optional[str]
+
+
+@router.put("/{id}", response_model=Union[dict, generic.ResponseBase])
+def edit_keycloak_users(id: str, data: EditUser):
+    try:
+        admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
+        edit_user_response = keycloak_rest_crud.edit_user(admin_access_token=admin_access_token, id=id, data=data)
         return generate_response(
             "SUCCESS",
-            "User is returned",
-            db_user
+            "User update request is sent to Keycloak server",
+            {"update": edit_user_response}
         )
-    except Exception as e:
-        return generate_response(
-            "FAILURE",
-            str(e)
-        )
-
-@router.get("/name/{name}", response_model=Union[user_schema.GetUserResponse, generic.ResponseBase])
-def read_user_by_name(name: str, db: Session = Depends(get_db)):
-    try:
-        db_user = user_crud.get_user_by_name(db, name=name)
-        if db_user is None:
-            return generate_response(
-                "FAILURE",
-                "No such a user found"
-            )
-        return generate_response(
-            "SUCCESS",
-            "User is returned",
-            db_user
-        )
-    except Exception as e:
-        return generate_response(
-            "FAILURE",
-            str(e)
-        )
-
-@router.post("", response_model=Union[user_schema.GetUserResponse, generic.ResponseBase])
-def create_user(user: user_schema.UserCreate, db: Session = Depends(get_db)):
-    try:
-        db_user = user_crud.get_user_by_email(db, email=user.email)
-
-        if db_user:
-            return generate_response(
-                "FAILURE",
-                "This user exists"
-            )
         
-        new_user = user_crud.create_user(db=db, user=user)
+    except Exception as e:
+        return generate_response(status="FAILURE", message=str(e))
 
+
+@router.delete("/{id}", response_model=Union[dict, generic.ResponseBase])
+def delete_keycloak_users(id: str):
+    try:
+        admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
+        delete_user_response = keycloak_rest_crud.delete_user(admin_access_token=admin_access_token, id=id)
         return generate_response(
             "SUCCESS",
-            "User is created",
-            new_user
+            "User delete request is sent to Keycloak server",
+            {"delete": delete_user_response}
         )
-    except Exception as e:
-        return generate_response(
-            "FAILURE",
-            str(e)
-        )
-
-
-@router.patch("/{id}", response_model=Union[user_schema.GetUserResponse, generic.ResponseBase])
-def edit_user(user: dict, id: int, db: Session = Depends(get_db)):
-    try:
-        db_user = user_crud.get_user(db, id=id)
-
-        if not db_user:
-            return generate_response(
-                "FAILURE",
-                "This user does not exist"
-            )
         
-        edit_user = user_crud.edit_user(db=db, user=user, id=id)
-
-        return generate_response(
-            "SUCCESS",
-            "User is edited",
-            edit_user
-        )
     except Exception as e:
-        return generate_response(
-            "FAILURE",
-            str(e)
-        )
-
-@router.delete("/delete/{id}", response_model=Union[user_schema.GetUserResponse, generic.ResponseBase])
-def delete_user(id: int, db: Session = Depends(get_db)):
-    try:
-        db_user = user_crud.get_user(db, id=id)
-        if db_user is None:
-            return generate_response(
-                "FAILURE",
-                "No such a user found"
-            )
-
-        user_crud.delete_user(db, id=id)
-        return generate_response(
-            "SUCCESS",
-            "User is deleted",
-            db_user
-        )
-    except Exception as e:
-        return generate_response(
-            "FAILURE",
-            str(e)
-        )
-
-@router.post("/attend-organization", response_model=Union[org_user_schema.ParticipationResponse, generic.ResponseBase])
-def add_user_to_organization(participation: org_user_schema.OrgUser, db: Session = Depends(get_db)):
-    try:
-        db_org_user = user_crud.is_member(db, participation=participation)
-
-        if db_org_user:
-            return generate_response(
-                "FAILURE",
-                "User is already a member of this organization"
-            )
-        
-        new_participation = user_crud.join_organization(db=db, participation=participation)
-
-        return generate_response(
-            "SUCCESS",
-            "User is attended to organization",
-            new_participation
-        )
-    except Exception as e:
-        return generate_response(
-            "FAILURE",
-            str(e)
-        )
-
-
-@router.get("/organizations/{id}", response_model=Union[org_user_schema.ListParticipations, generic.ResponseBase])
-def read_users_organizations(id: int, db: Session = Depends(get_db)):
-    try:
-        db_user = user_crud.get_user(db, id=id)
-        if db_user is None:
-            return generate_response(
-                "FAILURE",
-                "No such a user found"
-            )
-        
-        orgs = user_crud.get_users_organizations(db, id)
-        return generate_response(
-            "SUCCESS",
-            "User's organizations are returned",
-            orgs
-        )
-    except Exception as e:
-        return generate_response(
-            "FAILURE",
-            str(e)
-        )
-
-@router.delete("/leave-organization", response_model=Union[org_user_schema.ParticipationResponse, generic.ResponseBase])
-def remove_user_from_organization(participation: org_user_schema.OrgUser, db: Session = Depends(get_db)):
-    try:
-        db_org_user = user_crud.is_member(db, participation=participation)
-        if db_org_user is None:
-            return generate_response(
-                "FAILURE",
-                "User is already not a member of this organization"
-            )
-
-        user_crud.leave_organization(db, participation=participation)
-        return generate_response(
-            "SUCCESS",
-            "User is removed from organization",
-            db_org_user
-        )
-    except Exception as e:
-        return generate_response(
-            "FAILURE",
-            str(e)
-        )
+        return generate_response(status="FAILURE", message=str(e))

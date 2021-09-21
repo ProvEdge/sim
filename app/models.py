@@ -22,3 +22,8 @@ class OrgUser(Base):
     
     org_id = Column(Integer, ForeignKey("organizations.id"), primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+
+# Container Cluster
+# Storage Cluster
+# Robot
+# Instance
