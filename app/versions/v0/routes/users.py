@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from typing import Any, Union, List, Optional
 
 from app import models
-from database.schemas import generic, keycloak_schema, user_schema, org_user_schema
+from database.schemas import generic, group_schema, user_schema
 from database.database import engine
 
 from app.functions import keycloak_rest_crud, keycloak_auth
@@ -14,7 +14,7 @@ models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
 
-@router.get("", response_model=Union[dict, generic.ResponseBase])
+@router.get("", response_model=Union[user_schema.GetUsersResponse, generic.ResponseBase])
 def get_keycloak_users():
     try:
         admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
@@ -33,7 +33,7 @@ def get_keycloak_users():
         return generate_response(status="FAILURE", message=str(e))
 
 
-@router.get("/{id}", response_model=Union[dict, generic.ResponseBase])
+@router.get("/{id}", response_model=Union[user_schema.GetUserResponse, generic.ResponseBase])
 def get_keycloak_user(id: str):
     try:
         admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
@@ -53,13 +53,8 @@ def get_keycloak_user(id: str):
         return generate_response(status="FAILURE", message=str(e))
 
 
-class EditUser(BaseModel):
-    email: Optional[str]
-    firstName: Optional[str]
-    lastName: Optional[str]
-
-@router.put("/{id}", response_model=Union[dict, generic.ResponseBase])
-def edit_keycloak_users(id: str, data: EditUser):
+@router.put("/{id}", response_model=Union[user_schema.GetUserResponse, generic.ResponseBase])
+def edit_keycloak_users(id: str, data: user_schema.EditUserRequest):
     try:
         admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
         edit_user_req = keycloak_rest_crud.edit_user(admin_access_token=admin_access_token, id=id, data=data)
@@ -79,8 +74,8 @@ def edit_keycloak_users(id: str, data: EditUser):
 
 
 
-@router.delete("/{id}", response_model=Union[dict, generic.ResponseBase])
-def delete_keycloak_users(id: str):
+@router.delete("/{id}", response_model=Union[user_schema.GetUserResponse, generic.ResponseBase])
+def delete_keycloak_user(id: str):
     try:
         admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
         delete_user_req = keycloak_rest_crud.delete_user(admin_access_token=admin_access_token, id=id)
@@ -99,8 +94,7 @@ def delete_keycloak_users(id: str):
         return generate_response(status="FAILURE", message=str(e))
 
 
-# PROVIDE SCHEMA
-@router.get("/{id}/groups", response_model=Union[dict, generic.ResponseBase])
+@router.get("/{id}/groups", response_model=Union[group_schema.GetGroupsResponse, generic.ResponseBase])
 def get_users_groups(id: str):
     try:
         admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
@@ -119,8 +113,7 @@ def get_users_groups(id: str):
         return generate_response(status="FAILURE", message=str(e))
 
 
-# PROVIDE SCHEMA
-@router.get("/{id}/attributes", response_model=Union[dict, generic.ResponseBase])
+@router.get("/{id}/attributes", response_model=Union[user_schema.GetUserAttributesResponse, generic.ResponseBase])
 def get_user_attributes(id: str):
     try:
         admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]

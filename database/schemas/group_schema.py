@@ -36,3 +36,10 @@ class GetGroupResponse(ResponseBase):
 
 class GetGroupsResponse(ResponseBase):
     data: List[GroupRepresentation]
+
+class EditGroupRequest(BaseModel):
+    name: Optional[str]
+    access: Optional[dict]
+
+class GetGroupAttributesResponse(ResponseBase):
+    data: dict
