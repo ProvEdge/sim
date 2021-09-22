@@ -7,7 +7,7 @@ from app import models
 from database.schemas import generic, keycloak_schema, user_schema, org_user_schema
 from database.database import engine
 
-from app.functions import keycloak_rest_crud, user_crud, keycloak_auth
+from app.functions import keycloak_rest_crud, keycloak_auth
 from app.functions.general_functions import get_db, generate_response
 
 models.Base.metadata.create_all(bind=engine)
@@ -18,18 +18,37 @@ router = APIRouter()
 def get_keycloak_users():
     try:
         admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
-        users = keycloak_rest_crud.get_users(admin_access_token=admin_access_token)
-        return users
+        users_req = keycloak_rest_crud.get_users(admin_access_token=admin_access_token)
+        if users_req.status_code == 200: return generate_response(
+            "SUCCESS",
+            "Users are returned",
+            users_req.data
+        )
+        else: return generate_response(
+            "FAILURE",
+            "Cannot get users",
+            users_req.data
+        )
     except Exception as e:
         return generate_response(status="FAILURE", message=str(e))
 
 
 @router.get("/{id}", response_model=Union[dict, generic.ResponseBase])
-def get_keycloak_users(id: str):
+def get_keycloak_user(id: str):
     try:
         admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
-        user = keycloak_rest_crud.get_user(admin_access_token=admin_access_token, id=id)
-        return user
+        user_req = keycloak_rest_crud.get_user(admin_access_token=admin_access_token, id=id)
+        if user_req.status_code == 200:
+            return generate_response(
+                "SUCCESS",
+                "User is returned",
+                user_req.data
+            )
+        else: return generate_response(
+            "FAILURE",
+            "Cannot get user",
+            user_req.data
+        )
     except Exception as e:
         return generate_response(status="FAILURE", message=str(e))
 
@@ -39,42 +58,83 @@ class EditUser(BaseModel):
     firstName: Optional[str]
     lastName: Optional[str]
 
-
 @router.put("/{id}", response_model=Union[dict, generic.ResponseBase])
 def edit_keycloak_users(id: str, data: EditUser):
     try:
         admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
-        edit_user_response = keycloak_rest_crud.edit_user(admin_access_token=admin_access_token, id=id, data=data)
-        return generate_response(
+        edit_user_req = keycloak_rest_crud.edit_user(admin_access_token=admin_access_token, id=id, data=data)
+        if edit_user_req.status_code == 204: return generate_response(
             "SUCCESS",
-            "User update request is sent to Keycloak server",
-            {"update": edit_user_response}
+            "User is updated",
+            edit_user_req.data
+        )
+        else: return generate_response(
+            "FAILURE",
+            "Cannot update user",
+            edit_user_req.data
         )
         
     except Exception as e:
         return generate_response(status="FAILURE", message=str(e))
+
 
 
 @router.delete("/{id}", response_model=Union[dict, generic.ResponseBase])
 def delete_keycloak_users(id: str):
     try:
         admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
-        delete_user_response = keycloak_rest_crud.delete_user(admin_access_token=admin_access_token, id=id)
-        return generate_response(
+        delete_user_req = keycloak_rest_crud.delete_user(admin_access_token=admin_access_token, id=id)
+        if delete_user_req.status_code == 204: return generate_response(
             "SUCCESS",
-            "User delete request is sent to Keycloak server",
-            {"delete": delete_user_response}
+            "User is deleted",
+            delete_user_req.data
+        )
+        else: return generate_response(
+            "FAILURE",
+            "Cannot delete user",
+            delete_user_req.data
         )
         
     except Exception as e:
         return generate_response(status="FAILURE", message=str(e))
 
 
+# PROVIDE SCHEMA
 @router.get("/{id}/groups", response_model=Union[dict, generic.ResponseBase])
 def get_users_groups(id: str):
     try:
         admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
-        groups = keycloak_rest_crud.get_users_groups(admin_access_token=admin_access_token, id=id)
-        return groups
+        groups_req = keycloak_rest_crud.get_users_groups(admin_access_token=admin_access_token, id=id)
+        if groups_req.status_code == 200: return generate_response(
+            "SUCCESS",
+            "User's groups are returned",
+            groups_req.data
+        )
+        else: return generate_response(
+            "FAILURE",
+            "Cannot get user's groups",
+            groups_req.data
+        )
+    except Exception as e:
+        return generate_response(status="FAILURE", message=str(e))
+
+
+# PROVIDE SCHEMA
+@router.get("/{id}/attributes", response_model=Union[dict, generic.ResponseBase])
+def get_user_attributes(id: str):
+    try:
+        admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
+        attributes_req = keycloak_rest_crud.get_user_attributes(admin_access_token=admin_access_token, id=id)
+        if attributes_req.status_code == 200: return generate_response(
+            "SUCCESS",
+            "User's attributes are returned",
+            attributes_req.data
+        )
+        else: return generate_response(
+            "FAILURE",
+            "Cannot get user's attributes",
+            attributes_req.data
+        )
+        
     except Exception as e:
         return generate_response(status="FAILURE", message=str(e))

@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 from .generic import ResponseBase
 
+#   Group Representation
 # {
 #     "id": "06a83b33-940c-47fd-8e61-6d383a601e39",
 #     "name": "platform-admin",
