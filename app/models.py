@@ -40,6 +40,25 @@ class Robot(Base):
     cpu_mb = Column(Integer, nullable=False)
     ram_mb = Column(Integer, nullable=False)
 
+class Instance(Base):
+    __tablename__ = "instances"
+
+    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+    user_id = Column(String(100), nullable=False) # keycloak foreign key
+    belongs_to_group = Column(Boolean, nullable=False)
+    group_id = Column(String(100), nullable=False) # keycloak foreign key
+    cluster_id = Column(Integer, ForeignKey("clusters.id"), nullable=False)
+    #storage_id = Column(Integer, ForeignKey("storages.id"), nullable=False)
+    namespace = Column(String(100), nullable=False)
+    deployment = Column(String(100), nullable=False)
+    robot_type = Column(String, ForeignKey("robots.type"), nullable=False)
+    __table_args__ = (
+        UniqueConstraint('cluster_id', 'namespace', 'deployment', name="cluster_ns_dep_uc"),
+    )
+
+
+
+
 
 # class Organization(Base):
 #     __tablename__ = "organizations"
