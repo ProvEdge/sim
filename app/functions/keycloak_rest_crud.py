@@ -84,6 +84,19 @@ def get_user_attributes(admin_access_token: str, id: str) -> KCResponse:
         data=user_req.data["attributes"]
     )
 
+def add_user_attributes(admin_access_token: str, id: str, data: user_schema.AddAttributesRequest) -> KCResponse:
+    
+    user_req = get_user(admin_access_token, id)
+    if user_req.status_code == 404:
+        return user_req
+    
+    cur_attr = get_user_attributes(admin_access_token, id).data
+    data.attributes = {**cur_attr, **data.attributes}
+
+    edit_req = edit_user(admin_access_token, id, data=data)
+
+    return edit_req
+
 
 def delete_user(admin_access_token: str, id: str) -> KCResponse:
     
@@ -206,6 +219,7 @@ def edit_group(admin_access_token: str, id: str, data: group_schema.EditGroupReq
         if value is not None:
             group_rep[attr] = value
 
+    print(group_rep)
 
     response = requests.put(url=url, headers=auth_header, data=json.dumps(group_rep))
     status_code = response.status_code
@@ -261,3 +275,23 @@ def get_group_attributes(admin_access_token: str, id: str) -> KCResponse:
         data=group_req.data["attributes"]
     )
 
+
+def add_group_attributes(admin_access_token: str, id: str, data: group_schema.AddAttributesRequest) -> KCResponse:
+    
+    group_req = get_group(admin_access_token, id)
+    if group_req.status_code == 404:
+        return group_req
+    
+    cur_attr = get_group_attributes(admin_access_token, id).data
+    data.attributes = {**cur_attr, **data.attributes}
+
+    edit_req = edit_group(admin_access_token, id, data=data)
+    status_code = edit_req.status_code
+    res_data = {}
+    if status_code == 204: res_data = get_group_attributes(admin_access_token, id).data
+    else: res_data = {}
+
+    return KCResponse(
+        status_code=status_code,
+        data=res_data
+    )

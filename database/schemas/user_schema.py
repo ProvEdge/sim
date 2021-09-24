@@ -59,3 +59,7 @@ class EditUserRequest(BaseModel):
 
 class GetUserAttributesResponse(ResponseBase):
     data: dict
+
+class AddAttributesRequest(BaseModel):
+    name: str
+    attributes: dict

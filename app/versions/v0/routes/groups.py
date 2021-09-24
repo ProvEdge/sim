@@ -129,3 +129,24 @@ def get_group_attributes(id: str):
         
     except Exception as e:
         return generate_response(status="FAILURE", message=str(e))
+
+
+@router.post("/{id}/attributes", response_model=Union[group_schema.GetGroupAttributesResponse, generic.ResponseBase])
+def add_group_attributes(id: str, data: group_schema.AddAttributesRequest):
+    try:
+        admin_access_token = keycloak_auth.get_admin_credentials()["access_token"]
+        add_attributes_req = keycloak_rest_crud.add_group_attributes(admin_access_token=admin_access_token, id=id, data=data)
+
+        if add_attributes_req.status_code == 204: return generate_response(
+            "SUCCESS",
+            "New attribute is added to the group",
+            add_attributes_req.data
+        )
+        else: return generate_response(
+            "FAILURE",
+            "Cannot update group's attributes",
+            add_attributes_req.data
+        )
+        
+    except Exception as e:
+        return generate_response(status="FAILURE", message=str(e))
