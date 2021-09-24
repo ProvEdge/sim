@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from .generic import ResponseBase
 
 class InstanceBase(BaseModel):
+    name: str
     user_id: str
     belongs_to_group: bool
     group_id: str
@@ -16,6 +17,7 @@ class InstanceCreate(InstanceBase):
     pass
 
 class InstanceEdit(BaseModel):
+    name: Optional[str]
     user_id: Optional[str]
     belongs_to_group: Optional[bool]
     group_id: Optional[str]

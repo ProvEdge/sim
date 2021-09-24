@@ -46,6 +46,7 @@ class Instance(Base):
     __tablename__ = "instances"
 
     id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+    name = Column(String(100), nullable=False)
     user_id = Column(String(100), nullable=False) # keycloak foreign key
     belongs_to_group = Column(Boolean, nullable=False)
     group_id = Column(String(100), nullable=False) # keycloak foreign key
@@ -57,6 +58,7 @@ class Instance(Base):
     
     __table_args__ = (
         UniqueConstraint('cluster_id', 'namespace', 'deployment', name="cluster_ns_dep_uc"),
+        UniqueConstraint('user_id', 'name', name="user_id_instance_name_uc"),
     )
 
 

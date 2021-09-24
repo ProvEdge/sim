@@ -24,6 +24,7 @@ def get_instance(db: Session, id: int):
 
 def create_instance(db: Session, instance: instance_schema.InstanceCreate):
     db_instance = models.Instance(
+        name=instance.name,
         user_id=instance.user_id,
         belongs_to_group=instance.belongs_to_group,
         group_id=instance.group_id,
