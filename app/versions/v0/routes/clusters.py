@@ -30,11 +30,11 @@ def read_cluster_by_id(id: int, db: Session = Depends(get_db)):
         if db_cluster is None:
             return generate_response(
                 "FAILURE",
-                "No cluster found"
+                "Cluster not found"
             )
         return generate_response(
             "SUCCESS",
-            "Organization is returned",
+            "Cluster is returned",
             db_cluster
         )
     except Exception as e:
@@ -111,7 +111,7 @@ def delete_cluster(id: int, db: Session = Depends(get_db)):
         if db_cluster is None:
             return generate_response(
                 "FAILURE",
-                "Cluster found"
+                "Cluster not found"
             )
 
         delete_exec = cluster_crud.delete_cluster(db, id=id)

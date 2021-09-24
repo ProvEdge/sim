@@ -33,7 +33,6 @@ def edit_cluster(db: Session, id: int, cluster: cluster_schema.ClusterEdit):
         if value is not None:
             attributes[attr] = value
 
-    print(attributes)
     db.query(models.Cluster).filter(models.Cluster.id == id).update(attributes)
     db.commit()
     db_cluster = get_cluster(db, id)

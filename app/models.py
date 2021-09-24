@@ -34,7 +34,7 @@ class Storage(Base):
 class Robot(Base):
     __tablename__ = "robots"
     
-    type= Column(String(100), primary_key=True, unique=True)
+    type = Column(String(100), primary_key=True, unique=True)
     has_gpu = Column(Boolean, nullable=False)
     gpu_mb = Column(Integer, nullable=True)
     cpu_mb = Column(Integer, nullable=False)

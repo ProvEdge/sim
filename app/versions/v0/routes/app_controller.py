@@ -1,11 +1,11 @@
 from fastapi import APIRouter
-from sqlalchemy.sql.expression import desc
+#from sqlalchemy.sql.expression import desc
 
 from typing import Union
 from database.schemas import generic, keycloak_schema
 from app.functions import general_functions, keycloak_auth
 
-from . import groups, users, clusters
+from . import groups, users, clusters, robots
 
 router = APIRouter()
 
@@ -27,6 +27,13 @@ router.include_router(
     clusters.router,
     prefix="/clusters",
     tags=["Clusters"]
+    #responses={418: {"description": "I'm a teapot"}},
+)
+
+router.include_router(
+    robots.router,
+    prefix="/robots",
+    tags=["Robots"]
     #responses={418: {"description": "I'm a teapot"}},
 )
 
