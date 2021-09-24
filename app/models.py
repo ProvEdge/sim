@@ -1,7 +1,7 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, UniqueConstraint
-import sqlalchemy
+from datetime import datetime
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, UniqueConstraint, DateTime, CheckConstraint
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.expression import null
+from sqlalchemy.sql.elements import Null
 
 from database.database import Base
 
@@ -61,7 +61,29 @@ class Instance(Base):
         UniqueConstraint('user_id', 'name', name="user_id_instance_name_uc"),
     )
 
+class Usage(Base):
+    __tablename__ = "usages"
 
+    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+    start_time = Column(DateTime, nullable=False, default=datetime.now())
+    end_time = Column(DateTime, nullable=True, default=Null)
+    is_terminated = Column(Boolean, nullable=False, default=False)
+
+    # deep copy of the instance
+    ins_id = Column(Integer, nullable=False)
+    ins_name = Column(String(100), nullable=False)
+    ins_user_id = Column(String(100), nullable=False) # keycloak foreign key
+    ins_belongs_to_group = Column(Boolean, nullable=False)
+    ins_group_id = Column(String(100), nullable=False) # keycloak foreign key
+    ins_cluster_id = Column(Integer, nullable=False)
+    #storage_id = Column(Integer, ForeignKey("storages.id"), nullable=False)
+    ins_namespace = Column(String(100), nullable=False)
+    ins_deployment = Column(String(100), nullable=False)
+    ins_robot_type = Column(String, nullable=False)
+
+    __table_args__ = (
+        CheckConstraint('start_time < end_time', 'start_end_time_consistency'),
+    )
 
 
 
