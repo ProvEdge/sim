@@ -5,7 +5,7 @@ from typing import Union
 from database.schemas import generic, keycloak_schema
 from app.functions import general_functions, keycloak_auth
 
-from . import groups, users, clusters, robots
+from . import groups, users, clusters, robots, instances
 
 router = APIRouter()
 
@@ -34,6 +34,13 @@ router.include_router(
     robots.router,
     prefix="/robots",
     tags=["Robots"]
+    #responses={418: {"description": "I'm a teapot"}},
+)
+
+router.include_router(
+    instances.router,
+    prefix="/instances",
+    tags=["Instances"]
     #responses={418: {"description": "I'm a teapot"}},
 )
 

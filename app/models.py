@@ -14,6 +14,7 @@ class Cluster(Base):
     id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
     api_server_address = Column(String(50), nullable=False)
     group_id = Column(String(100), nullable=False) # coming from Keycloak
+    
     __table_args__ = (
         UniqueConstraint('api_server_address', 'group_id', name='address_group_uc'),
     )
@@ -26,6 +27,7 @@ class Storage(Base):
     cluster_id = Column(Integer, ForeignKey("clusters.id"), nullable=False)
     pvc_name = Column(String(100), nullable=False)
     pv_name = Column(String(100), nullable=False)
+    
     __table_args__ = (
         UniqueConstraint('cluster_id', 'pvc_name', name="cluster_pvc_uv"),
         UniqueConstraint('cluster_id', 'pv_name', name="cluster_pv_uv"),
@@ -52,6 +54,7 @@ class Instance(Base):
     namespace = Column(String(100), nullable=False)
     deployment = Column(String(100), nullable=False)
     robot_type = Column(String, ForeignKey("robots.type"), nullable=False)
+    
     __table_args__ = (
         UniqueConstraint('cluster_id', 'namespace', 'deployment', name="cluster_ns_dep_uc"),
     )
