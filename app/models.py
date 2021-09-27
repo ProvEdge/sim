@@ -1,5 +1,6 @@
 from datetime import datetime
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, UniqueConstraint, DateTime, CheckConstraint
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, UniqueConstraint, DateTime, CheckConstraint, Float
+import sqlalchemy
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.elements import Null
 
@@ -85,6 +86,18 @@ class Usage(Base):
         CheckConstraint('start_time > end_time', 'start_end_time_consistency'),
     )
 
+class Bill(Base):
+    __tablename__ = "bills"
+    
+    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+    usage_id = Column(Integer, ForeignKey("usages.id"), nullable=False, unique=True)
+    amount = Column(Float, nullable=False)
+    currency = Column(String, nullable=False)
+    is_paid = Column(Boolean, nullable=False, default=False)
+
+    __table_args__ = (
+        CheckConstraint("currency = 'Dollar' ", 'currency_options'),
+    )
 
 
 # class Organization(Base):
