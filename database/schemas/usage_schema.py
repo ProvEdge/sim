@@ -1,12 +1,13 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 from pydantic import BaseModel
+from sqlalchemy.sql.elements import Null
 
 from .generic import ResponseBase
 
 class UsageBase(BaseModel):
     start_time: datetime
-    end_time: datetime
+    end_time: Optional[datetime]
     is_terminated: bool
 
     ins_id: int
@@ -22,12 +23,11 @@ class UsageBase(BaseModel):
 
 
 class UsageCreate(BaseModel):
-    start_time: datetime
-    end_time: datetime
     instance_id: int
 
 class UsageEdit(BaseModel):
-    pass
+    end_time: Optional[datetime]
+    is_terminated: Optional[bool]
 
 class Usage(UsageBase):
     id: int

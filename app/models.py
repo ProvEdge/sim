@@ -66,7 +66,7 @@ class Usage(Base):
 
     id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
     start_time = Column(DateTime, nullable=False, default=datetime.now())
-    end_time = Column(DateTime, nullable=True, default=Null)
+    end_time = Column(DateTime, nullable=True)
     is_terminated = Column(Boolean, nullable=False, default=False)
 
     # deep copy of the instance
@@ -82,7 +82,7 @@ class Usage(Base):
     ins_robot_type = Column(String, nullable=False)
 
     __table_args__ = (
-        CheckConstraint('start_time < end_time', 'start_end_time_consistency'),
+        CheckConstraint('start_time > end_time', 'start_end_time_consistency'),
     )
 
 

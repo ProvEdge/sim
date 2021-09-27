@@ -1,45 +1,66 @@
-# from sqlalchemy.orm import Session
+from app.functions import instance_crud
+from datetime import datetime
+from sqlalchemy.orm import Session
 
-# from .. import models
-# from database.schemas import cluster_schema
+from .. import models
+from database.schemas import usage_schema
 
-# def get_clusters(db: Session, group_id: str, api_server_address: str, skip: int = 0, limit: int = 100):
-#     clusters = db.query(models.Cluster)
-#     if group_id != "":
-#         clusters = clusters.filter(models.Cluster.group_id == group_id)
-#     if api_server_address != "":
-#         clusters = clusters.filter(models.Cluster.api_server_address == api_server_address)
-#     return clusters.offset(skip).limit(limit).all()
+def get_usages(db: Session, start_time: datetime, end_time: datetime, is_terminated: bool, ins_user_id: str, ins_belongs_to_group: bool, ins_group_id: str, ins_cluster_id: int, ins_robot_type: str, skip: int = 0, limit: int = 100):
+    usages = db.query(models.Usage)
+    if start_time != "":
+        usages = usages.filter(models.Usage.start_time > start_time)
+    if end_time != "":
+        usages = usages.filter(models.Usage.end_time > end_time)
+    if ins_user_id != "":
+        usages = usages.filter(models.Usage.ins_user_id == ins_user_id)
+    if ins_belongs_to_group and ins_group_id != "":
+        usages = usages.filter(models.Usage.ins_group_id == ins_group_id)
+    if ins_cluster_id != 0:
+        usages = usages.filter(models.Usage.ins_cluster_id == ins_cluster_id)
+    if ins_robot_type != "":
+        usages = usages.filter(models.Usage.ins_robot_type == ins_robot_type)
+    
+    return usages.offset(skip).limit(limit).all()
 
-# def get_cluster(db: Session, id: int):
-#     return db.query(models.Cluster).filter(models.Cluster.id == id).first()
+def get_usage(db: Session, id: int):
+    return db.query(models.Usage).filter(models.Usage.id == id).first()
 
-# def get_clusters_by_group_id(db: Session, group_id: str):
-#     return db.query(models.Cluster).filter(models.Cluster.group_id == group_id).all()
+def create_usage(db: Session, usage: usage_schema.UsageCreate):
+    db_instance = instance_crud.get_instance(db, usage.instance_id)
 
-# def create_cluster(db: Session, cluster: cluster_schema.ClusterCreate):
-#     db_cluster = models.Cluster(
-#         api_server_address=cluster.api_server_address,
-#         group_id =cluster.group_id
-#     )
-#     db.add(db_cluster)
-#     db.commit()
-#     db.refresh(db_cluster)
-#     return db_cluster
+    db_usage = models.Usage(
+        # start_time=usage.start_time,
+        # end-time is null
+        is_terminated=False,
+        ins_id=db_instance.id,
+        ins_name=db_instance.name,
+        ins_user_id=db_instance.user_id,
+        ins_belongs_to_group=db_instance.belongs_to_group,
+        ins_group_id=db_instance.group_id,
+        ins_cluster_id=db_instance.cluster_id,
+        ins_namespace=db_instance.namespace,
+        ins_deployment=db_instance.deployment,
+        ins_robot_type=db_instance.robot_type
+    )
 
-# def edit_cluster(db: Session, id: int, cluster: cluster_schema.ClusterEdit):
-#     attributes = {}
-#     for attr, value in cluster.__dict__.items():
-#         if value is not None:
-#             attributes[attr] = value
+    db.add(db_usage)
+    db.commit()
+    db.refresh(db_usage)
+    return db_usage
 
-#     db.query(models.Cluster).filter(models.Cluster.id == id).update(attributes)
-#     db.commit()
-#     db_cluster = get_cluster(db, id)
-#     return db_cluster
+def edit_usage(db: Session, id: int, usage: usage_schema.UsageEdit):
+    attributes = {}
+    for attr, value in usage.__dict__.items():
+        if value is not None:
+            attributes[attr] = value
 
-# def delete_cluster(db: Session, id: int):
-#     db_cluster = get_cluster(db, id)
-#     query_exec = db.query(models.Cluster).filter(models.Cluster.id == id).delete()
-#     db.commit()
-#     return db_cluster
+    db.query(models.Usage).filter(models.Usage.id == id).update(attributes)
+    db.commit()
+    db_usage = get_usage(db, id)
+    return db_usage
+
+def delete_usage(db: Session, id: int):
+    db_usage = get_usage(db, id)
+    query_exec = db.query(models.Usage).filter(models.Usage.id == id).delete()
+    db.commit()
+    return db_usage
