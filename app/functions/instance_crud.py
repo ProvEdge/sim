@@ -32,6 +32,8 @@ def create_instance(db: Session, instance: instance_schema.InstanceCreate):
         # storage_id
         namespace=instance.namespace,
         deployment=instance.deployment,
+        service=instance.service,
+        configmaps=instance.configmaps,
         robot_type=instance.robot_type
     )
     db.add(db_instance)

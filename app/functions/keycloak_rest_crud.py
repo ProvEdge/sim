@@ -4,11 +4,13 @@ import requests, json
 
 from database.schemas.keycloak_schema import KCResponse
 
-keycloak_server_url = "https://keycloaktest.provedge.cloud/auth/admin/realms"
+realm = "master"
+
+keycloak_server_url = "https://keycloaktest.provedge.cloud/auth/admin/realms/" + realm
 
 def get_users(admin_access_token: str) -> KCResponse:
     
-    route = "/kubernetes-platform/users"
+    route = "/users"
     url = keycloak_server_url + route
     auth_header = {
         "Authorization": "Bearer " + admin_access_token
@@ -25,7 +27,7 @@ def get_users(admin_access_token: str) -> KCResponse:
 
 def get_user(admin_access_token: str, id: str) -> KCResponse:
     
-    route = "/kubernetes-platform/users/" + id
+    route = "/users/" + id
     url = keycloak_server_url + route
     auth_header = {
         "Authorization": "Bearer " + admin_access_token
@@ -42,7 +44,7 @@ def get_user(admin_access_token: str, id: str) -> KCResponse:
 
 def edit_user(admin_access_token: str, id: str, data: user_schema.EditUserRequest) -> KCResponse:
 
-    route = "/kubernetes-platform/users/" + id
+    route = "/users/" + id
     url = keycloak_server_url + route
 
     auth_header = {
@@ -104,7 +106,7 @@ def delete_user(admin_access_token: str, id: str) -> KCResponse:
     if user_req.status_code == 404:
         return user_req
 
-    route = "/kubernetes-platform/users/" + id
+    route = "/users/" + id
     url = keycloak_server_url + route
 
     auth_header = {
@@ -129,7 +131,7 @@ def get_users_groups(admin_access_token: str, id: str) -> KCResponse:
     if user_req.status_code == 404:
         return user_req
     
-    route = "/kubernetes-platform/users/" + id + "/groups"
+    route = "/users/" + id + "/groups"
     url = keycloak_server_url + route
     auth_header = {
         "Authorization": "Bearer " + admin_access_token
@@ -147,7 +149,7 @@ def get_users_groups(admin_access_token: str, id: str) -> KCResponse:
 
 def get_groups(admin_access_token: str, brief: bool) -> KCResponse:
     
-    route = "/kubernetes-platform/groups"
+    route = "/groups"
     url = keycloak_server_url + route
     auth_header = {
         "Authorization": "Bearer " + admin_access_token
@@ -169,7 +171,7 @@ def get_groups(admin_access_token: str, brief: bool) -> KCResponse:
 
 def get_group(admin_access_token: str, id: str) -> KCResponse:
     
-    route = "/kubernetes-platform/groups/" + id
+    route = "/groups/" + id
     url = keycloak_server_url + route
     auth_header = {
         "Authorization": "Bearer " + admin_access_token
@@ -186,7 +188,7 @@ def get_group(admin_access_token: str, id: str) -> KCResponse:
 
 def get_group_members(admin_access_token: str, id: str) -> KCResponse:
     
-    route = "/kubernetes-platform/groups/" + id + "/members"
+    route = "/groups/" + id + "/members"
     url = keycloak_server_url + route
     auth_header = {
         "Authorization": "Bearer " + admin_access_token
@@ -204,7 +206,7 @@ def get_group_members(admin_access_token: str, id: str) -> KCResponse:
 
 def edit_group(admin_access_token: str, id: str, data: group_schema.EditGroupRequest) -> KCResponse:
 
-    route = "/kubernetes-platform/groups/" + id
+    route = "/groups/" + id
     url = keycloak_server_url + route
 
     auth_header = {
@@ -240,7 +242,7 @@ def delete_group(admin_access_token: str, id: str) -> KCResponse:
     if group_req.status_code == 404:
         return group_req
 
-    route = "/kubernetes-platform/groups/" + id
+    route = "/groups/" + id
     url = keycloak_server_url + route
 
     auth_header = {

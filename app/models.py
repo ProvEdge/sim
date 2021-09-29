@@ -55,6 +55,8 @@ class Instance(Base):
     #storage_id = Column(Integer, ForeignKey("storages.id"), nullable=False)
     namespace = Column(String(100), nullable=False)
     deployment = Column(String(100), nullable=False)
+    service = Column(String(100), nullable=False)
+    configmaps = Column(String(200), nullable=False)
     robot_type = Column(String, ForeignKey("robots.type"), nullable=False)
     
     __table_args__ = (
@@ -80,6 +82,8 @@ class Usage(Base):
     #storage_id = Column(Integer, ForeignKey("storages.id"), nullable=False)
     ins_namespace = Column(String(100), nullable=False)
     ins_deployment = Column(String(100), nullable=False)
+    ins_service = Column(String(100), nullable=False)
+    ins_configmaps = Column(String(100), nullable=False)
     ins_robot_type = Column(String, nullable=False)
 
     __table_args__ = (

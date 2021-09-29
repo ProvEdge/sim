@@ -11,6 +11,8 @@ class InstanceBase(BaseModel):
     cluster_id: int
     namespace: str
     deployment: str
+    service: str
+    configmaps: str
     robot_type: str
 
 class InstanceCreate(InstanceBase):
@@ -24,6 +26,8 @@ class InstanceEdit(BaseModel):
     cluster_id: Optional[int]
     namespace: Optional[str]
     deployment: Optional[str]
+    service: Optional[str]
+    configmaps: Optional[str]
     robot_type: Optional[str]
 
 class Instance(InstanceBase):

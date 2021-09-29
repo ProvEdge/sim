@@ -40,6 +40,8 @@ def create_usage(db: Session, usage: usage_schema.UsageCreate):
         ins_cluster_id=db_instance.cluster_id,
         ins_namespace=db_instance.namespace,
         ins_deployment=db_instance.deployment,
+        ins_service=db_instance.service,
+        ins_configmaps=db_instance.configmaps,
         ins_robot_type=db_instance.robot_type
     )
 

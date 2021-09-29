@@ -19,6 +19,8 @@ class UsageBase(BaseModel):
     # storage_id
     ins_namespace: str
     ins_deployment: str
+    ins_service: str
+    ins_configmaps: str
     ins_robot_type: str
 
 

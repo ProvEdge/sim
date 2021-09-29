@@ -1,0 +1,25 @@
+{
+    "generic_configmap": "",
+    "robots": {
+        "spot": {
+            "configmaps": {
+                "start": "https://raw.githubusercontent.com/ProvEdge/robot-deployment/main/spot/configmaps/spot-start.yaml",
+                "supervisord": "https://raw.githubusercontent.com/ProvEdge/robot-deployment/main/spot/configmaps/spot-supervisord.yaml"
+            },
+            "deployment": {
+                "deployment": "https://raw.githubusercontent.com/ProvEdge/robot-deployment/main/spot/deployment/deployment.yaml",
+                "service": "https://raw.githubusercontent.com/ProvEdge/robot-deployment/main/spot/deployment/service.yaml"
+            }
+        },
+        "jackal": {
+            "configmaps": {
+                "start": "https://raw.githubusercontent.com/ProvEdge/robot-deployment/main/jackal/configmaps/jackal-start.yaml",
+                "supervisord": "https://raw.githubusercontent.com/ProvEdge/robot-deployment/main/jackal/configmaps/jackal-supervisord.yaml"
+            },
+            "deployment": {
+                "deployment": "https://raw.githubusercontent.com/ProvEdge/robot-deployment/main/jackal/deployment/deployment.yaml",
+                "service": "https://raw.githubusercontent.com/ProvEdge/robot-deployment/main/jackal/deployment/service.yaml"
+            }
+        }
+    }
+}
