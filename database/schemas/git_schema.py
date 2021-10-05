@@ -27,3 +27,21 @@ class AddValuesToGit(BaseModel):
     repo: str = "tunahanertekin/jackal-helm"
     filepath: str = "values/"
     helm_values: HelmValues
+
+class EditHelmValues(BaseModel):
+    namespace: Optional[str]
+    cm_start_name: Optional[str]
+    cm_supervisord_name: Optional[str]
+    dep_name: Optional[str]
+    replicas: Optional[int]
+    http_port: Optional[int]
+    webrtc_port: Optional[int]
+    theia_port: Optional[int]
+    rosbridge_port: Optional[int]
+    webviz_port: Optional[int]
+
+class EditValues(BaseModel):
+    access_token: str = "token"
+    repo: str = "tunahanertekin/jackal-helm"
+    filepath: str = "values/"
+    helm_values: EditHelmValues

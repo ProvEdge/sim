@@ -56,14 +56,14 @@ def create_instance(instance: platform_schema.CreateInstance):
 
 
 @router.post("/edit-instance-values")
-def edit_instance(instance: platform_schema.CreateInstance):
+def edit_instance(values: git_schema.EditValues):
 
     try:
         edit_values = git_rest_crud.edit_helm_values(
-            access_token=instance.gitops.access_token,
-            repo_name=instance.gitops.repo,
-            filepath=instance.gitops.filepath,
-            values_content=instance.gitops.helm_values
+            access_token=values.access_token,
+            repo_name=values.repo,
+            filepath=values.filepath,
+            values_content=values.helm_values
         )
 
         if edit_values.is_successful:
