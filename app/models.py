@@ -54,13 +54,14 @@ class Instance(Base):
     cluster_id = Column(Integer, ForeignKey("clusters.id"), nullable=False)
     #storage_id = Column(Integer, ForeignKey("storages.id"), nullable=False)
     namespace = Column(String(100), nullable=False)
-    deployment = Column(String(100), nullable=False)
-    service = Column(String(100), nullable=False)
-    configmaps = Column(String(200), nullable=False)
+    #deployment = Column(String(100), nullable=False)
+    #service = Column(String(100), nullable=False)
+    #configmaps = Column(String(200), nullable=False)
     robot_type = Column(String, ForeignKey("robots.type"), nullable=False)
+    argocd_project_name = Column(String, nullable=False, unique=True)
     
     __table_args__ = (
-        UniqueConstraint('cluster_id', 'namespace', 'deployment', name="cluster_ns_dep_uc"),
+        #UniqueConstraint('cluster_id', 'namespace', 'deployment', name="cluster_ns_dep_uc"),
         UniqueConstraint('user_id', 'name', name="user_id_instance_name_uc"),
     )
 
@@ -103,28 +104,11 @@ class Bill(Base):
         CheckConstraint("currency = 'Dollar' ", 'currency_options'),
     )
 
+class Transaction(Base):
+    __tablename__ = "transactions"
 
-# class Organization(Base):
-#     __tablename__ = "organizations"
-
-#     id = Column(Integer, primary_key=True, index=True)
-#     name = Column(String, unique=True, index=True)
-
-# class User(Base):
-#     __tablename__ = "users"
-    
-#     id = Column(Integer, primary_key=True, index=True)
-#     git_uid = Column(String(50), nullable=True)
-#     email = Column(String(256), unique=True)
-#     name = Column(String(256))
-
-# class OrgUser(Base):
-#     __tablename__ = "org_user"
-    
-#     org_id = Column(Integer, ForeignKey("organizations.id"), primary_key=True)
-#     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-
-# Container Cluster
-# Storage Cluster
-# Robot
-# Instance
+    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+    usage_id = Column(Integer, ForeignKey("usages.id"), nullable=False, unique=True)
+    bill_id = Column(Integer, ForeignKey("bills.id"), nullable=False, unique=True)
+    method = Column(String, nullable=False)
+    details = Column(String, nullable=False)

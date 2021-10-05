@@ -2,20 +2,16 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from .generic import ResponseBase
+from database.schemas import git_schema, argocd_schema
 
 class K8sResponse():
     def __init__(self, status_code: int, data: dict):
         self.status_code = status_code
         self.data = data
 
-class RobotToInstanceRequest(BaseModel):
-    name: str
-    user_id: str
-    belongs_to_group: bool
-    group_id: str
-    cluster_id: str
-    robot_type: str
-
+class CreateInstance(BaseModel):
+    argocd_app: argocd_schema.CreateApplicationRequest
+    gitops: git_schema.AddValuesToGit
 
 
 # class ClusterBase(BaseModel):

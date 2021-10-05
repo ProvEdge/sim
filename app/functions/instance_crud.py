@@ -31,10 +31,11 @@ def create_instance(db: Session, instance: instance_schema.InstanceCreate):
         cluster_id=instance.cluster_id,
         # storage_id
         namespace=instance.namespace,
-        deployment=instance.deployment,
-        service=instance.service,
-        configmaps=instance.configmaps,
-        robot_type=instance.robot_type
+        #deployment=instance.deployment,
+        #service=instance.service,
+        #configmaps=instance.configmaps,
+        robot_type=instance.robot_type,
+        argocd_project_name=instance.argocd_project_name
     )
     db.add(db_instance)
     db.commit()

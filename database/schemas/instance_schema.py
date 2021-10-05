@@ -10,10 +10,11 @@ class InstanceBase(BaseModel):
     group_id: str
     cluster_id: int
     namespace: str
-    deployment: str
-    service: str
-    configmaps: str
+    #deployment: str
+    #service: str
+    #configmaps: str
     robot_type: str
+    argocd_project_name: str
 
 class InstanceCreate(InstanceBase):
     pass
@@ -25,10 +26,11 @@ class InstanceEdit(BaseModel):
     group_id: Optional[str]
     cluster_id: Optional[int]
     namespace: Optional[str]
-    deployment: Optional[str]
-    service: Optional[str]
-    configmaps: Optional[str]
+    #deployment: Optional[str]
+    #service: Optional[str]
+    #configmaps: Optional[str]
     robot_type: Optional[str]
+    argocd_project_name: Optional[str]
 
 class Instance(InstanceBase):
     id: int
