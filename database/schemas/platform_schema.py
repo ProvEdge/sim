@@ -9,9 +9,15 @@ class K8sResponse():
         self.status_code = status_code
         self.data = data
 
+class InstanceGit(BaseModel):
+    access_token: str = "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"
+    repo: str = "tunahanertekin/jackal-helm"
+    filepath: str = "values/"
+    namespace: str
+
 class CreateInstance(BaseModel):
     argocd_app: argocd_schema.CreateApplicationRequest
-    gitops: git_schema.AddValuesToGit
+    meta: InstanceGit
 
 
 # class ClusterBase(BaseModel):

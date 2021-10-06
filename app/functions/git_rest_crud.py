@@ -18,10 +18,17 @@ def add_instance_values(access_token: str, repo_name: str, filepath: str, values
             message="new file via python",
             content=get_helm_values_content(values_content)
         )
+
+        file_content = g.get_repo(repo_name).get_contents(filepath).decoded_content
+       
         return git_schema.GitResponse(
             is_successful=True,
             data={
-                "message": "Git request is successful"
+                "message": "Git request is successful",
+                "values": {
+                    "filepath": filepath,
+                    "content": file_content
+                }
             }
         )
     except Exception as e:

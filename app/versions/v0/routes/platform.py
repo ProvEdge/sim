@@ -16,31 +16,20 @@ router = APIRouter()
 
 from database.schemas import generic
 
-    
-
-
-@router.post("/create-instance")
-def create_instance(instance: platform_schema.CreateInstance):
-
+@router.post("/create-values-yaml")
+def create_values_yaml(values: git_schema.AddValuesToGit):
     try:
         create_values = git_rest_crud.add_instance_values(
-            access_token=instance.gitops.access_token,
-            repo_name=instance.gitops.repo,
-            filepath=instance.gitops.filepath,
-            values_content=instance.gitops.helm_values
+            access_token=values.access_token,
+            repo_name=values.repo,
+            filepath=values.filepath,
+            values_content=values.helm_values
         )
 
         if create_values.is_successful:
-            create_argo_app = argocd_rest_crud.create_argocd_application(
-                namespace=instance.gitops.helm_values.namespace,
-                repo_url=instance.gitops.repo,
-                values_path=instance.gitops.filepath,
-                application=instance.argocd_app
-            )
             return generate_response(
                 "SUCCESS",
-                "ArgoCD app is created",
-                create_argo_app.data
+                "Values yaml is generated, " + values.filepath
             )
         else:
             return generate_response(
@@ -48,6 +37,33 @@ def create_instance(instance: platform_schema.CreateInstance):
                 "Cannot make Git operation",
                 create_values.data
             )
+    except Exception as e:
+        return generate_response(
+            "FAILURE",
+            str(e)
+        )
+
+
+@router.post("/create-instance")
+def create_instance(instance: platform_schema.CreateInstance):
+
+    try:
+        create_argo_app = argocd_rest_crud.create_argocd_application(
+            application=instance
+        )
+
+        if create_argo_app.status_code == 200:
+            return generate_response(
+                "SUCCESS",
+                "ArgoCD app is created",
+                create_argo_app.data
+            )
+        else: return generate_response(
+            "FAILURE",
+            "Problem when creating ArgoCD app",
+            create_argo_app.data
+        )
+
     except Exception as e:
         return generate_response(
             "FAILURE",
@@ -112,6 +128,30 @@ def sync_instance(instance_id: str):
             str(e)
         )
 
+@router.delete("/delete/{instance_id}")
+def delete_instance(instance_id: str):
+
+    try:
+        delete_req = argocd_rest_crud.delete_argocd_application(instance_id)
+
+        if delete_req.status_code == 200:
+            return generate_response(
+                "SUCCESS",
+                "Instance deletion is successful",
+                delete_req.data
+            )
+        else:
+            return generate_response(
+                "FAILURE",
+                "Cannot delete the instance",
+                delete_req.data
+            )
+    except Exception as e:
+        return generate_response(
+            "FAILURE",
+            str(e)
+        )
+
 
 
 
@@ -142,22 +182,22 @@ def create_argocd_application(application: argocd_schema.CreateApplicationReques
         )
 
 
-@router.post("/create-values-yaml", deprecated=True, response_model=Union[dict, generic.ResponseBase])
-def create_values_yaml(credentials: git_schema.AddValuesToGit):
+# @router.post("/create-values-yaml", deprecated=True, response_model=Union[dict, generic.ResponseBase])
+# def create_values_yaml(credentials: git_schema.AddValuesToGit):
 
-    try:
+#     try:
         
-        create_values = git_rest_crud.add_instance_values(
-            access_token=credentials.access_token,
-            repo=credentials.repo,
-            filepath=credentials.filepath,
-            values_content=credentials.helm_values
-        )
+#         create_values = git_rest_crud.add_instance_values(
+#             access_token=credentials.access_token,
+#             repo=credentials.repo,
+#             filepath=credentials.filepath,
+#             values_content=credentials.helm_values
+#         )
 
         
         
-        return create_values.data
-    except Exception as e:
-        return {
-            "ex": str(e)
-        }
+#         return create_values.data
+#     except Exception as e:
+#         return {
+#             "ex": str(e)
+#         }

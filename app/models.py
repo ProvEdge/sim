@@ -65,50 +65,50 @@ class Instance(Base):
         UniqueConstraint('user_id', 'name', name="user_id_instance_name_uc"),
     )
 
-class Usage(Base):
-    __tablename__ = "usages"
+# class Usage(Base):
+#     __tablename__ = "usages"
 
-    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
-    start_time = Column(DateTime, nullable=False, default=datetime.now())
-    end_time = Column(DateTime, nullable=True)
-    is_terminated = Column(Boolean, nullable=False, default=False)
+#     id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+#     start_time = Column(DateTime, nullable=False, default=datetime.now())
+#     end_time = Column(DateTime, nullable=True)
+#     is_terminated = Column(Boolean, nullable=False, default=False)
 
-    # deep copy of the instance
-    ins_id = Column(Integer, nullable=False)
-    ins_name = Column(String(100), nullable=False)
-    ins_user_id = Column(String(100), nullable=False) # keycloak foreign key
-    ins_belongs_to_group = Column(Boolean, nullable=False)
-    ins_group_id = Column(String(100), nullable=False) # keycloak foreign key
-    ins_cluster_id = Column(Integer, nullable=False)
-    #storage_id = Column(Integer, ForeignKey("storages.id"), nullable=False)
-    ins_namespace = Column(String(100), nullable=False)
-    ins_deployment = Column(String(100), nullable=False)
-    ins_service = Column(String(100), nullable=False)
-    ins_configmaps = Column(String(100), nullable=False)
-    ins_robot_type = Column(String, nullable=False)
+#     # deep copy of the instance
+#     ins_id = Column(Integer, nullable=False)
+#     ins_name = Column(String(100), nullable=False)
+#     ins_user_id = Column(String(100), nullable=False) # keycloak foreign key
+#     ins_belongs_to_group = Column(Boolean, nullable=False)
+#     ins_group_id = Column(String(100), nullable=False) # keycloak foreign key
+#     ins_cluster_id = Column(Integer, nullable=False)
+#     #storage_id = Column(Integer, ForeignKey("storages.id"), nullable=False)
+#     ins_namespace = Column(String(100), nullable=False)
+#     ins_deployment = Column(String(100), nullable=False)
+#     ins_service = Column(String(100), nullable=False)
+#     ins_configmaps = Column(String(100), nullable=False)
+#     ins_robot_type = Column(String, nullable=False)
 
-    __table_args__ = (
-        CheckConstraint('start_time > end_time', 'start_end_time_consistency'),
-    )
+#     __table_args__ = (
+#         CheckConstraint('start_time > end_time', 'start_end_time_consistency'),
+#     )
 
-class Bill(Base):
-    __tablename__ = "bills"
+# class Bill(Base):
+#     __tablename__ = "bills"
     
-    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
-    usage_id = Column(Integer, ForeignKey("usages.id"), nullable=False, unique=True)
-    amount = Column(Float, nullable=False)
-    currency = Column(String, nullable=False)
-    is_paid = Column(Boolean, nullable=False, default=False)
+#     id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+#     usage_id = Column(Integer, ForeignKey("usages.id"), nullable=False, unique=True)
+#     amount = Column(Float, nullable=False)
+#     currency = Column(String, nullable=False)
+#     is_paid = Column(Boolean, nullable=False, default=False)
 
-    __table_args__ = (
-        CheckConstraint("currency = 'Dollar' ", 'currency_options'),
-    )
+#     __table_args__ = (
+#         CheckConstraint("currency = 'Dollar' ", 'currency_options'),
+#     )
 
-class Transaction(Base):
-    __tablename__ = "transactions"
+# class Transaction(Base):
+#     __tablename__ = "transactions"
 
-    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
-    usage_id = Column(Integer, ForeignKey("usages.id"), nullable=False, unique=True)
-    bill_id = Column(Integer, ForeignKey("bills.id"), nullable=False, unique=True)
-    method = Column(String, nullable=False)
-    details = Column(String, nullable=False)
+#     id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+#     usage_id = Column(Integer, ForeignKey("usages.id"), nullable=False, unique=True)
+#     bill_id = Column(Integer, ForeignKey("bills.id"), nullable=False, unique=True)
+#     method = Column(String, nullable=False)
+#     details = Column(String, nullable=False)
