@@ -39,6 +39,8 @@ def add_instance_values(access_token: str, repo_name: str, filepath: str, values
             }
         )
     
+
+
 def edit_helm_values(access_token: str, repo_name: str, filepath: str, values_content: git_schema.EditHelmValues) -> git_schema.GitResponse:
     try:
 
@@ -63,6 +65,34 @@ def edit_helm_values(access_token: str, repo_name: str, filepath: str, values_co
             path=filepath,
             message=filepath + " is updated",
             content=helm_json_to_yaml(cnt_json),
+            sha=sha_value
+        )
+
+        return git_schema.GitResponse(
+            is_successful=True,
+            data={
+                "message": "Git request is successful"
+            }
+        )
+    except Exception as e:
+        return git_schema.GitResponse(
+            is_successful=False,
+            data={
+                "message": str(e)
+            }
+        )
+
+
+def delete_helm_values(access_token: str, repo_name: str, filepath: str) -> git_schema.GitResponse:
+    try:
+
+        g = Github(access_token)
+        repo = g.get_repo(repo_name)
+        sha_value = repo.get_contents(filepath).sha
+        
+        delete_file = repo.delete_file(
+            path=filepath,
+            message=filepath + " is deleted",
             sha=sha_value
         )
 

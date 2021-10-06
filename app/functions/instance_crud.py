@@ -35,6 +35,8 @@ def create_instance(db: Session, instance: instance_schema.InstanceCreate):
         #service=instance.service,
         #configmaps=instance.configmaps,
         robot_type=instance.robot_type,
+        values_repository=instance.values_repository,
+        values_path=instance.values_path,
         argocd_project_name=instance.argocd_project_name
     )
     db.add(db_instance)

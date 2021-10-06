@@ -2,7 +2,9 @@ from github.MainClass import Github
 from pydantic.main import BaseModel
 import requests, json
 from requests.exceptions import Timeout
-from database.schemas import argocd_schema, platform_schema
+from sqlalchemy.orm.session import Session
+from app.functions import instance_crud
+from database.schemas import argocd_schema, instance_schema, platform_schema
 from database.schemas.argocd_schema import ArgoCDResponse
 
 argocd_server_url = "https://localhost:8080/api/v1"
@@ -20,13 +22,19 @@ def get_bearer_token(credentials: argocd_schema.BearerTokenRequest) -> ArgoCDRes
         data=data
     )
 
-def create_argocd_application(application: platform_schema.CreateInstance) -> ArgoCDResponse:
+def create_argocd_application(
+    db: Session,
+    access_token: str,
+    argo_cluster: str,
+    helm_path: str,
+    instance: instance_schema.InstanceCreate
+) -> ArgoCDResponse:
 
     try:
 
-        g = Github(application.meta.access_token)
-        repo = g.get_repo(application.meta.repo)
-        file_content = repo.get_contents(application.meta.filepath).decoded_content
+        g = Github(access_token)
+        repo = g.get_repo(instance.values_repository)
+        file_content = repo.get_contents(instance.values_path).decoded_content
 
         url = argocd_server_url + "/applications"
         token_res = get_bearer_token(
@@ -44,21 +52,21 @@ def create_argocd_application(application: platform_schema.CreateInstance) -> Ar
             "apiVersion": "argoproj.io/v1alpha1",
             "kind": "Application",
             "metadata": {
-                "name": application.argocd_app.name
+                "name": instance.argocd_project_name
             },
             "spec": {
                 "destination": {
                 "name": "",
-                "namespace": application.meta.namespace,
-                "server": application.argocd_app.cluster
+                "namespace": instance.namespace,
+                "server": argo_cluster
                 },
                 "source": {
-                    "path": application.argocd_app.helm_path,
-                    "repoURL": "https://github.com/" + application.meta.repo,
+                    "path": helm_path,
+                    "repoURL": "https://github.com/" + instance.values_repository,
                     "targetRevision": "HEAD",
                     "helm": {
                         "valueFiles": [
-                        application.meta.filepath
+                        instance.values_path
                         ]
                     }
                 },
@@ -76,11 +84,19 @@ def create_argocd_application(application: platform_schema.CreateInstance) -> Ar
         status_code = response.status_code
         data = response.json()
 
+        instance_db = {}
+        if status_code == 200:
+            instance_db = instance_crud.create_instance(db, instance)
+
         return ArgoCDResponse(
             status_code=status_code,
-            data=data
+            data={
+                "instance": instance_db,
+                "argocd": data
+            }
         )
     except Exception as e:
+        # clear all
         return ArgoCDResponse(
             status_code=0,
             data={

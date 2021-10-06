@@ -9,11 +9,13 @@ class InstanceBase(BaseModel):
     belongs_to_group: bool
     group_id: str
     cluster_id: int
-    namespace: str
+    namespace: str = "tunahan"
     #deployment: str
     #service: str
     #configmaps: str
-    robot_type: str
+    robot_type: str = "jackal"
+    values_repository: str = "tunahanertekin/jackal-helm"
+    values_path: str = "values/"
     argocd_project_name: str
 
 class InstanceCreate(InstanceBase):
@@ -30,6 +32,8 @@ class InstanceEdit(BaseModel):
     #service: Optional[str]
     #configmaps: Optional[str]
     robot_type: Optional[str]
+    values_repository: Optional[str]
+    values_path: Optional[str]
     argocd_project_name: Optional[str]
 
 class Instance(InstanceBase):

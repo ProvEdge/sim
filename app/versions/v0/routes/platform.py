@@ -1,16 +1,18 @@
 from typing import Optional, Union
 
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Header, Depends
+from sqlalchemy.orm.session import Session
 
 from app import models
 from database.schemas import argocd_schema, generic, platform_schema, git_schema
 
-from app.functions import argocd_rest_crud, git_rest_crud, kubernetes_jobs
-from app.functions.general_functions import generate_response
+from app.functions import argocd_rest_crud, git_rest_crud, instance_crud, kubernetes_jobs
+from app.functions.general_functions import generate_response, get_db
 
-import yaml, json
+from database.database import engine
 
-from github import Github
+models.Base.metadata.create_all(bind=engine)
+
 
 router = APIRouter()
 
@@ -45,11 +47,15 @@ def create_values_yaml(values: git_schema.AddValuesToGit):
 
 
 @router.post("/create-instance")
-def create_instance(instance: platform_schema.CreateInstance):
+def create_instance(instance: platform_schema.CreateInstance, db: Session = Depends(get_db)):
 
     try:
         create_argo_app = argocd_rest_crud.create_argocd_application(
-            application=instance
+            db=db,
+            access_token=instance.access_token,
+            argo_cluster=instance.argo_cluster,
+            helm_path=instance.helm_path,
+            instance=instance.instance
         )
 
         if create_argo_app.status_code == 200:
@@ -129,9 +135,11 @@ def sync_instance(instance_id: str):
         )
 
 @router.delete("/delete/{instance_id}")
-def delete_instance(instance_id: str):
+def delete_instance(instance_id: int):
 
     try:
+        db_instance = instance_crud.get_instance(db, instance_id)
+        delete_helm_values = git_rest_crud.delete_helm_values()
         delete_req = argocd_rest_crud.delete_argocd_application(instance_id)
 
         if delete_req.status_code == 200:

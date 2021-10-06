@@ -58,11 +58,14 @@ class Instance(Base):
     #service = Column(String(100), nullable=False)
     #configmaps = Column(String(200), nullable=False)
     robot_type = Column(String, ForeignKey("robots.type"), nullable=False)
+    values_repository = Column(String, nullable=False)
+    values_path = Column(String, nullable=False)
     argocd_project_name = Column(String, nullable=False, unique=True)
     
     __table_args__ = (
         #UniqueConstraint('cluster_id', 'namespace', 'deployment', name="cluster_ns_dep_uc"),
         UniqueConstraint('user_id', 'name', name="user_id_instance_name_uc"),
+        UniqueConstraint('values_repository', 'values_path', name="repo_path_uc"),
     )
 
 # class Usage(Base):
