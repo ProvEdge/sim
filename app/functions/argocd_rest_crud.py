@@ -3,7 +3,7 @@ from pydantic.main import BaseModel
 import requests, json
 from requests.exceptions import Timeout
 from sqlalchemy.orm.session import Session
-from app.functions import instance_crud
+from app.functions import git_rest_crud, instance_crud
 from database.schemas import argocd_schema, instance_schema, platform_schema
 from database.schemas.argocd_schema import ArgoCDResponse
 
@@ -158,8 +158,15 @@ def sync_argocd_application(app_name: str):
     )
 
 
-def delete_argocd_application(app_name: str):
-    url = argocd_server_url + "/applications/" + app_name
+def delete_argocd_application(
+    db: Session,
+    access_token: str, 
+    instance_id: int
+    ):
+
+    db_instance = instance_crud.get_instance(db, instance_id)
+    
+    url = argocd_server_url + "/applications/" + db_instance.argocd_project_name
     token_res = get_bearer_token(
         {
             "username": "admin",
@@ -171,12 +178,25 @@ def delete_argocd_application(app_name: str):
         "Cookie": "argocd.token=" + token
     }
 
-    response =  requests.delete(url=url, headers=auth_header, verify=False)
+    response = requests.delete(url=url, headers=auth_header, verify=False)
 
     status_code = response.status_code
     data = response.json()
 
+    delete_instance = {}
+    if status_code == 200:
+        delete_helm_values = git_rest_crud.delete_helm_values(
+            access_token=access_token,
+            repo_name=db_instance.values_repository,
+            filepath=db_instance.values_path
+        )
+
+        delete_instance = instance_crud.delete_instance(db, instance_id)
+
     return ArgoCDResponse(
         status_code=status_code,
-        data=data
+        data={
+            "instance": delete_instance,
+            "argocd": data
+        }
     )

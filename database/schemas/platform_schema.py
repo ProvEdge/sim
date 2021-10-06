@@ -15,6 +15,9 @@ class CreateInstance(BaseModel):
     helm_path: str = "."
     instance: instance_schema.InstanceCreate
 
+class DeleteInstance(BaseModel):
+    access_token: str = "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"
+
 
 # class ClusterBase(BaseModel):
 #     api_server_address: str

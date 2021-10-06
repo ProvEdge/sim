@@ -77,7 +77,7 @@ def create_instance(instance: platform_schema.CreateInstance, db: Session = Depe
         )
 
 
-@router.post("/edit-instance-values")
+@router.post("/edit-instance")
 def edit_instance(values: git_schema.EditValues):
 
     try:
@@ -134,13 +134,17 @@ def sync_instance(instance_id: str):
             str(e)
         )
 
+
 @router.delete("/delete/{instance_id}")
-def delete_instance(instance_id: int):
+def delete_instance(instance_id: int, credentials: platform_schema.DeleteInstance, db: Session = Depends(get_db)):
 
     try:
-        db_instance = instance_crud.get_instance(db, instance_id)
-        delete_helm_values = git_rest_crud.delete_helm_values()
-        delete_req = argocd_rest_crud.delete_argocd_application(instance_id)
+        
+        delete_req = argocd_rest_crud.delete_argocd_application(
+            db=db,
+            access_token=credentials.access_token,
+            instance_id=instance_id
+        )
 
         if delete_req.status_code == 200:
             return generate_response(
