@@ -23,7 +23,7 @@ class HelmValues(BaseModel):
     webviz_port: int = 31005
 
 class AddValuesToGit(BaseModel):
-    access_token: str = "token"
+    access_token: str = "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"
     repo: str = "tunahanertekin/jackal-helm"
     filepath: str = "values/"
     helm_values: HelmValues
@@ -41,7 +41,7 @@ class EditHelmValues(BaseModel):
     webviz_port: Optional[int]
 
 class EditValues(BaseModel):
-    access_token: str = "token"
+    access_token: str = "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"
     repo: str = "tunahanertekin/jackal-helm"
     filepath: str = "values/"
     helm_values: EditHelmValues

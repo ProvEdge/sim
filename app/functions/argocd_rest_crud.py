@@ -25,7 +25,7 @@ def create_argocd_application(namespace: str, repo_url: str, values_path: str, a
     token_res = get_bearer_token(
         {
             "username": "admin",
-            "password": "argo-password"
+            "password": "ncHjjNs7De47HaMm"
         }
     )
 
@@ -85,7 +85,7 @@ def sync_argocd_application(app_name: str):
     token_res = get_bearer_token(
         {
             "username": "admin",
-            "password": "argo-password"
+            "password": "ncHjjNs7De47HaMm"
         }
     )
 
