@@ -142,9 +142,17 @@ def sync_argocd_application(app_name: str):
     }
 
     body = {
-        "dryrun": True
+        "revision": "HEAD",
+        "prune": False,
+        "dryRun": False,
+        "strategy": {
+            "hook": {
+            "force": False
+            }
+        },
+        "resources": None,
+        "syncOptions": None
     }
-
     response =  requests.post(url=url, headers=auth_header, data=json.dumps(body), verify=False)
 
     status_code = response.status_code # response.status_code

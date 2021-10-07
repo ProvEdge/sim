@@ -42,6 +42,9 @@ class EditHelmValues(BaseModel):
 
 class EditValues(BaseModel):
     access_token: str = "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"
-    repo: str = "tunahanertekin/jackal-helm"
-    filepath: str = "values/"
     helm_values: EditHelmValues
+
+class FileCommits(BaseModel):
+    access_token: str = "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"
+    repo: str = "tunahanertekin/jackal-helm"
+    filepath: str = ""

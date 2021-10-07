@@ -88,6 +88,7 @@ def delete_helm_values(access_token: str, repo_name: str, filepath: str) -> git_
 
         g = Github(access_token)
         repo = g.get_repo(repo_name)
+
         sha_value = repo.get_contents(filepath).sha
         
         delete_file = repo.delete_file(
@@ -109,6 +110,25 @@ def delete_helm_values(access_token: str, repo_name: str, filepath: str) -> git_
                 "message": str(e)
             }
         )
+
+def get_commits(access_token: str, repo_name: str, filepath: str):
+    g = Github(access_token)
+    repo = g.get_repo(repo_name)
+
+    commits = repo.get_commits(
+        path=filepath
+    )
+
+    for c in commits:
+        print("----------------")
+        for f in c.files:
+            if f.filename == filepath:
+                print(find_line_and_jsonify("deploymentReplicas:", f.patch), "///",  c.commit.author.date)
+
+    return {
+        "msg": "to be logged"
+    }
+
 
 def get_helm_values_content(values: git_schema.HelmValues):
     values_json = {
@@ -146,3 +166,10 @@ def helm_obj_to_json(values: git_schema.HelmValues):
 def helm_json_to_yaml(values: dict):
     values_yaml = yaml.dump(values, allow_unicode=True)
     return values_yaml
+
+def find_line_and_jsonify(attribute: str, data: str):
+    lines = data.split(sep="\n")
+    for l in lines:
+        if attribute in l:
+            return l
+    return "not found"

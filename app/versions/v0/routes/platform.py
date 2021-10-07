@@ -1,6 +1,7 @@
 from typing import Optional, Union
 
 from fastapi import APIRouter, Header, Depends
+from pydantic.main import BaseModel
 from sqlalchemy.orm.session import Session
 
 from app import models
@@ -17,6 +18,7 @@ models.Base.metadata.create_all(bind=engine)
 router = APIRouter()
 
 from database.schemas import generic
+
 
 @router.post("/create-values-yaml")
 def create_values_yaml(values: git_schema.AddValuesToGit):
@@ -77,14 +79,17 @@ def create_instance(instance: platform_schema.CreateInstance, db: Session = Depe
         )
 
 
-@router.post("/edit-instance")
-def edit_instance(values: git_schema.EditValues):
+@router.put("/edit-instance/{instance_id}")
+def edit_instance(instance_id: int, values: git_schema.EditValues, db: Session = Depends(get_db)):
 
     try:
+
+        db_instance = instance_crud.get_instance(db, instance_id)
+
         edit_values = git_rest_crud.edit_helm_values(
             access_token=values.access_token,
-            repo_name=values.repo,
-            filepath=values.filepath,
+            repo_name=db_instance.values_repository,
+            filepath=db_instance.values_path,
             values_content=values.helm_values
         )
 
@@ -192,6 +197,24 @@ def create_argocd_application(application: argocd_schema.CreateApplicationReques
             "FAILURE",
             "An error occurred"
         )
+
+
+
+
+
+@router.post("/get-commits", deprecated=True)
+def get_commits(file: git_schema.FileCommits):
+    try:
+        x = git_rest_crud.get_commits(
+            access_token=file.access_token,
+            repo_name=file.repo,
+            filepath=file.filepath
+        )
+        return x
+    except Exception as e:
+        return {
+            "msg": str(e)
+        }
 
 
 # @router.post("/create-values-yaml", deprecated=True, response_model=Union[dict, generic.ResponseBase])
