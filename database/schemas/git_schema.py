@@ -15,7 +15,7 @@ class HelmValues(BaseModel):
     cm_start_name: str = "jackal-start"
     cm_supervisord_name: str = "jackal-supervisord"
     dep_name: str = "jackal-1"
-    replicas: int = 1
+    replicas: int = 0
     http_port: int = 31001
     webrtc_port: int = 31002
     theia_port: int = 31003

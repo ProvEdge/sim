@@ -53,7 +53,9 @@ def edit_helm_values(access_token: str, repo_name: str, filepath: str, values_co
         cnt_json_str = json.dumps(cnt)
         cnt_json = json.loads(cnt_json_str)
 
-        new_values_json = helm_obj_to_json(values_content)
+        if type(values_content) is dict:
+            new_values_json = values_content
+        else: new_values_json = helm_obj_to_json(values_content)
 
         for key in new_values_json:
             if new_values_json[key] is None: continue

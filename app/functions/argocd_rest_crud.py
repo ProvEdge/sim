@@ -74,7 +74,7 @@ def create_argocd_application(
                 "syncPolicy": {
                     "automated": {
                         "prune": False,
-                        "selfHeal": False
+                        "selfHeal": True
                     }
                 }
             }
@@ -206,5 +206,44 @@ def delete_argocd_application(
         data={
             "instance": delete_instance,
             "argocd": data
+        }
+    )
+
+def start_instance(
+    db: Session,
+    access_token: str, 
+    instance_id: int
+):
+
+    db_instance = instance_crud.get_instance(db, instance_id)
+
+    values = {
+        "deploymentReplicas": 1
+    }
+
+    edit_instance_values = git_rest_crud.edit_helm_values(
+        access_token=access_token,
+        repo_name=db_instance.values_repository,
+        filepath=db_instance.values_path,
+        values_content=values
+    )
+
+    sync = {}
+    if edit_instance_values.is_successful:
+        sync = sync_argocd_application(db_instance.argocd_project_name)
+        if sync.status_code == 200:
+            return ArgoCDResponse(
+                status_code=200,
+                data={
+                    "git": edit_instance_values.data,
+                    "argocd": sync.data
+                }
+            )
+    
+    return ArgoCDResponse(
+        status_code=400,
+        data={
+            "git": edit_instance_values.data,
+            "argocd": {}
         }
     )

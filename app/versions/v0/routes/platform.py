@@ -20,9 +20,15 @@ router = APIRouter()
 from database.schemas import generic
 
 
-@router.post("/create-values-yaml")
+@router.post(
+    path="/create-values-yaml",
+    description="Replicas are being forced to be 0 by default."
+)
 def create_values_yaml(values: git_schema.AddValuesToGit):
     try:
+
+        values.helm_values.replicas = 0 # fork robot first
+
         create_values = git_rest_crud.add_instance_values(
             access_token=values.access_token,
             repo_name=values.repo,
@@ -59,6 +65,7 @@ def create_instance(instance: platform_schema.CreateInstance, db: Session = Depe
             helm_path=instance.helm_path,
             instance=instance.instance
         )
+
 
         if create_argo_app.status_code == 200:
             return generate_response(
@@ -114,12 +121,12 @@ def edit_instance(instance_id: int, values: git_schema.EditValues, db: Session =
 
 
 @router.get("/sync-instance/{instance_id}")
-def sync_instance(instance_id: str):
+def sync_instance(instance_id: int, db: Session = Depends(get_db)):
 
-    # turn argocd app name to instance id
+    db_instance = instance_crud.get_instance(db, instance_id)
 
     try:
-        sync_req = argocd_rest_crud.sync_argocd_application(instance_id)
+        sync_req = argocd_rest_crud.sync_argocd_application(db_instance.argocd_project_name)
 
         if sync_req.status_code == 200:
             return generate_response(
@@ -169,6 +176,38 @@ def delete_instance(instance_id: int, credentials: platform_schema.DeleteInstanc
             str(e)
         )
 
+
+@router.post("/start-instance/{instance_id}")
+def start_instance(instance_id: int, credentials: platform_schema.StartInstance, db: Session = Depends(get_db)):
+    try:
+        # increase replica count on git
+        # sync argo app
+        # if both successful, create a usage record
+
+        start = argocd_rest_crud.start_instance(
+            db=db,
+            access_token=credentials.access_token,
+            instance_id=instance_id
+        )
+
+        if start.status_code == 200:
+            return generate_response(
+                "SUCCESS",
+                "Instance is started, replica count is 1",
+                start.data
+            )
+        else: return generate_response(
+            "FAILURE",
+            "Instance cannot be started",
+            start.data
+        )
+
+        
+    except Exception as e:
+        return generate_response(
+            "FAILURE",
+            str(e)
+        )
 
 
 
