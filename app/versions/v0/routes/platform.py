@@ -146,6 +146,32 @@ def sync_instance(instance_id: int, db: Session = Depends(get_db)):
             str(e)
         )
 
+@router.get("/refresh-instance/{instance_id}")
+def refresh_instance(instance_id: int, db: Session = Depends(get_db)):
+
+    db_instance = instance_crud.get_instance(db, instance_id)
+
+    try:
+        refresh_req = argocd_rest_crud.refresh_argocd_application(db_instance.argocd_project_name)
+
+        if refresh_req.status_code == 200:
+            return generate_response(
+                "SUCCESS",
+                "Instance refreshing is successful",
+                refresh_req.data
+            )
+        else:
+            return generate_response(
+                "FAILURE",
+                "Cannot refresh the instance",
+                refresh_req.data
+            )
+    except Exception as e:
+        return generate_response(
+            "FAILURE",
+            str(e)
+        )
+
 
 @router.delete("/delete/{instance_id}")
 def delete_instance(instance_id: int, credentials: platform_schema.DeleteInstance, db: Session = Depends(get_db)):
@@ -191,6 +217,7 @@ def start_instance(instance_id: int, credentials: platform_schema.StartInstance,
         )
 
         if start.status_code == 200:
+            
             return generate_response(
                 "SUCCESS",
                 "Instance is started, replica count is 1",

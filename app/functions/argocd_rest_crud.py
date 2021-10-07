@@ -3,9 +3,10 @@ from pydantic.main import BaseModel
 import requests, json
 from requests.exceptions import Timeout
 from sqlalchemy.orm.session import Session
-from app.functions import git_rest_crud, instance_crud
+from app.functions import git_rest_crud, instance_crud, usage_crud
 from database.schemas import argocd_schema, instance_schema, platform_schema
 from database.schemas.argocd_schema import ArgoCDResponse
+from database.schemas.usage_schema import UsageCreate
 
 argocd_server_url = "https://localhost:8080/api/v1"
 
@@ -166,6 +167,33 @@ def sync_argocd_application(app_name: str):
     )
 
 
+def refresh_argocd_application(app_name: str):
+    url = argocd_server_url + "/applications/" + app_name + "?refresh=normal"
+
+    token_res = get_bearer_token(
+        {
+            "username": "admin",
+            "password": "ncHjjNs7De47HaMm"
+        }
+    )
+
+    token = token_res.data["token"]
+
+    auth_header = {
+        "Cookie": "argocd.token=" + token
+    }
+
+    response =  requests.get(url=url, headers=auth_header, verify=False)
+
+    status_code = response.status_code # response.status_code
+    data = response.json()
+
+    return ArgoCDResponse(
+        status_code=status_code,
+        data=data
+    )
+
+
 def delete_argocd_application(
     db: Session,
     access_token: str, 
@@ -209,41 +237,57 @@ def delete_argocd_application(
         }
     )
 
+
+
 def start_instance(
     db: Session,
     access_token: str, 
     instance_id: int
 ):
 
-    db_instance = instance_crud.get_instance(db, instance_id)
+    try:
+        db_instance = instance_crud.get_instance(db, instance_id)
 
-    values = {
-        "deploymentReplicas": 1
-    }
-
-    edit_instance_values = git_rest_crud.edit_helm_values(
-        access_token=access_token,
-        repo_name=db_instance.values_repository,
-        filepath=db_instance.values_path,
-        values_content=values
-    )
-
-    sync = {}
-    if edit_instance_values.is_successful:
-        sync = sync_argocd_application(db_instance.argocd_project_name)
-        if sync.status_code == 200:
-            return ArgoCDResponse(
-                status_code=200,
-                data={
-                    "git": edit_instance_values.data,
-                    "argocd": sync.data
-                }
-            )
-    
-    return ArgoCDResponse(
-        status_code=400,
-        data={
-            "git": edit_instance_values.data,
-            "argocd": {}
+        values = {
+            "deploymentReplicas": 1
         }
-    )
+
+        edit_instance_values = git_rest_crud.edit_helm_values(
+            access_token=access_token,
+            repo_name=db_instance.values_repository,
+            filepath=db_instance.values_path,
+            values_content=values
+        )
+
+        sync = {}
+        if edit_instance_values.is_successful:
+            refresh = refresh_argocd_application(db_instance.argocd_project_name)
+            if refresh.status_code == 200:
+                usage = UsageCreate(instance_id=db_instance.id)
+                start_usage = usage_crud.create_usage(db, usage)
+                return ArgoCDResponse(
+                    status_code=200,
+                    data={
+                        "git": edit_instance_values.data,
+                        "usage": start_usage,
+                        "argocd": refresh.data
+                    }
+                )
+        
+        return ArgoCDResponse(
+            status_code=400,
+            data={
+                "git": edit_instance_values.data,
+                "argocd": {}
+            }
+        )
+
+    except Exception as e:
+        return ArgoCDResponse(
+            status_code=400,
+            data={
+                "message": str(e)
+            }
+        )
+
+    
