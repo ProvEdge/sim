@@ -68,31 +68,34 @@ class Instance(Base):
         UniqueConstraint('values_repository', 'values_path', name="repo_path_uc"),
     )
 
-# class Usage(Base):
-#     __tablename__ = "usages"
+class Usage(Base):
+    __tablename__ = "usages"
 
-#     id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
-#     start_time = Column(DateTime, nullable=False, default=datetime.now())
-#     end_time = Column(DateTime, nullable=True)
-#     is_terminated = Column(Boolean, nullable=False, default=False)
+    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+    start_time = Column(DateTime, nullable=False, default=datetime.now())
+    end_time = Column(DateTime, nullable=True)
+    is_terminated = Column(Boolean, nullable=False, default=False)
 
-#     # deep copy of the instance
-#     ins_id = Column(Integer, nullable=False)
-#     ins_name = Column(String(100), nullable=False)
-#     ins_user_id = Column(String(100), nullable=False) # keycloak foreign key
-#     ins_belongs_to_group = Column(Boolean, nullable=False)
-#     ins_group_id = Column(String(100), nullable=False) # keycloak foreign key
-#     ins_cluster_id = Column(Integer, nullable=False)
-#     #storage_id = Column(Integer, ForeignKey("storages.id"), nullable=False)
-#     ins_namespace = Column(String(100), nullable=False)
-#     ins_deployment = Column(String(100), nullable=False)
-#     ins_service = Column(String(100), nullable=False)
-#     ins_configmaps = Column(String(100), nullable=False)
-#     ins_robot_type = Column(String, nullable=False)
+    # deep copy of the instance
+    ins_id = Column(Integer, nullable=False)
+    ins_name = Column(String(100), nullable=False)
+    ins_user_id = Column(String(100), nullable=False) # keycloak foreign key
+    ins_belongs_to_group = Column(Boolean, nullable=False)
+    ins_group_id = Column(String(100), nullable=False) # keycloak foreign key
+    ins_cluster_id = Column(Integer, nullable=False)
+    #storage_id = Column(Integer, ForeignKey("storages.id"), nullable=False)
+    ins_namespace = Column(String(100), nullable=False)
+    #ins_deployment = Column(String(100), nullable=False)
+    #ins_service = Column(String(100), nullable=False)
+    #ins_configmaps = Column(String(100), nullable=False)
+    ins_robot_type = Column(String, nullable=False)
+    ins_values_repository = Column(String, nullable=False)
+    ins_values_path = Column(String, nullable=False)
+    ins_argocd_project_name = Column(String, nullable=False)
 
-#     __table_args__ = (
-#         CheckConstraint('start_time > end_time', 'start_end_time_consistency'),
-#     )
+    __table_args__ = (
+        CheckConstraint('start_time > end_time', 'start_end_time_consistency'),
+    )
 
 # class Bill(Base):
 #     __tablename__ = "bills"
