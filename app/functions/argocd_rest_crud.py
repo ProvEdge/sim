@@ -1,12 +1,14 @@
+from datetime import datetime
 from github.MainClass import Github
 from pydantic.main import BaseModel
 import requests, json
 from requests.exceptions import Timeout
 from sqlalchemy.orm.session import Session
+from sqlalchemy.sql.sqltypes import Time
 from app.functions import git_rest_crud, instance_crud, usage_crud
 from database.schemas import argocd_schema, instance_schema, platform_schema
 from database.schemas.argocd_schema import ArgoCDResponse
-from database.schemas.usage_schema import UsageCreate
+from database.schemas.usage_schema import UsageCreate, UsageEdit
 
 argocd_server_url = "https://localhost:8080/api/v1"
 
@@ -259,7 +261,7 @@ def start_instance(
             values_content=values
         )
 
-        sync = {}
+        refresh = {}
         if edit_instance_values.is_successful:
             refresh = refresh_argocd_application(db_instance.argocd_project_name)
             if refresh.status_code == 200:
@@ -270,6 +272,64 @@ def start_instance(
                     data={
                         "git": edit_instance_values.data,
                         "usage": start_usage,
+                        "argocd": refresh.data
+                    }
+                )
+        
+        return ArgoCDResponse(
+            status_code=400,
+            data={
+                "git": edit_instance_values.data,
+                "argocd": {}
+            }
+        )
+
+    except Exception as e:
+        return ArgoCDResponse(
+            status_code=400,
+            data={
+                "message": str(e)
+            }
+        )
+
+    
+def stop_instance(
+    db: Session,
+    access_token: str, 
+    instance_id: int
+):
+
+    try:
+        db_usages = usage_crud.get_usages(
+            db,
+            ins_id=instance_id,
+            is_terminated=False
+        )
+
+        db_usage = db_usages[0]
+
+        values = {
+            "deploymentReplicas": 0
+        }
+
+        edit_instance_values = git_rest_crud.edit_helm_values(
+            access_token=access_token,
+            repo_name=db_usage.ins_values_repository,
+            filepath=db_usage.ins_values_path,
+            values_content=values
+        )
+
+        refresh = {}
+        if edit_instance_values.is_successful:
+            refresh = refresh_argocd_application(db_usage.ins_argocd_project_name)
+            if refresh.status_code == 200:
+                usage = UsageEdit(end_time=datetime.now(), is_terminated=True)
+                edit_usage = usage_crud.edit_usage(db, db_usage.id, usage)
+                return ArgoCDResponse(
+                    status_code=200,
+                    data={
+                        "git": edit_instance_values.data,
+                        "usage": edit_usage,
                         "argocd": refresh.data
                     }
                 )

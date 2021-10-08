@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from .. import models
 from database.schemas import usage_schema
 
-def get_usages(db: Session, start_time: datetime, end_time: datetime, is_terminated: bool, ins_user_id: str, ins_belongs_to_group: bool, ins_group_id: str, ins_cluster_id: int, ins_robot_type: str, skip: int = 0, limit: int = 100):
+def get_usages(db: Session, start_time: datetime = "", end_time: datetime = "", is_terminated: bool = True, ins_user_id: str = "", ins_belongs_to_group: bool = False, ins_group_id: str = "", ins_cluster_id: int = 0, ins_robot_type: str = "", ins_id: int = 0, skip: int = 0, limit: int = 100):
     usages = db.query(models.Usage)
     if start_time != "":
         usages = usages.filter(models.Usage.start_time > start_time)
@@ -19,7 +19,11 @@ def get_usages(db: Session, start_time: datetime, end_time: datetime, is_termina
         usages = usages.filter(models.Usage.ins_cluster_id == ins_cluster_id)
     if ins_robot_type != "":
         usages = usages.filter(models.Usage.ins_robot_type == ins_robot_type)
-    
+    if ins_id != 0:
+        usages = usages.filter(models.Usage.ins_id == ins_id)
+        
+    usages = usages.filter(models.Usage.is_terminated == is_terminated)
+
     return usages.offset(skip).limit(limit).all()
 
 def get_usage(db: Session, id: int):

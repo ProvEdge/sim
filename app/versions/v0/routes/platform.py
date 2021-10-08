@@ -11,13 +11,14 @@ from app.functions import argocd_rest_crud, git_rest_crud, instance_crud, kubern
 from app.functions.general_functions import generate_response, get_db
 
 from database.database import engine
+from database.schemas import generic
+
+from gitea import *
 
 models.Base.metadata.create_all(bind=engine)
 
 
 router = APIRouter()
-
-from database.schemas import generic
 
 
 @router.post(
@@ -235,6 +236,40 @@ def start_instance(instance_id: int, credentials: platform_schema.StartInstance,
             "FAILURE",
             str(e)
         )
+
+@router.post("/stop-instance/{instance_id}")
+def start_instance(instance_id: int, credentials: platform_schema.StartInstance, db: Session = Depends(get_db)):
+    try:
+        # decrease replica count on git
+        # sync argo app
+        # if both successful, create a usage record
+
+        start = argocd_rest_crud.stop_instance(
+            db=db,
+            access_token=credentials.access_token,
+            instance_id=instance_id
+        )
+
+        if start.status_code == 200:
+            
+            return generate_response(
+                "SUCCESS",
+                "Instance is stopped, replica count is 0",
+                start.data
+            )
+        else: return generate_response(
+            "FAILURE",
+            "Instance cannot be stopped",
+            start.data
+        )
+
+        
+    except Exception as e:
+        return generate_response(
+            "FAILURE",
+            str(e)
+        )
+
 
 
 

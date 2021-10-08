@@ -94,7 +94,7 @@ class Usage(Base):
     ins_argocd_project_name = Column(String, nullable=False)
 
     __table_args__ = (
-        CheckConstraint('start_time > end_time', 'start_end_time_consistency'),
+        CheckConstraint('start_time < end_time', 'start_end_time_consistency'),
     )
 
 # class Bill(Base):

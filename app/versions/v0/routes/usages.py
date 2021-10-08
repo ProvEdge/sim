@@ -15,7 +15,7 @@ models.Base.metadata.create_all(bind=engine)
 router = APIRouter()
 
 @router.get("", response_model=Union[usage_schema.ListUsageResponse, generic.ResponseBase])
-def read_usages(start_time: Optional[datetime] = "", end_time: Optional[datetime] = "", is_terminated: Optional[bool] = True, ins_user_id: Optional[str] = "", ins_belongs_to_group: Optional[bool] = False, ins_group_id: Optional[str] = "", ins_cluster_id: Optional[int] = 0, ins_robot_type: Optional[str] = "", skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_usages(start_time: Optional[datetime] = "", end_time: Optional[datetime] = "", is_terminated: Optional[bool] = True, ins_user_id: Optional[str] = "", ins_belongs_to_group: Optional[bool] = False, ins_group_id: Optional[str] = "", ins_cluster_id: Optional[int] = 0, ins_robot_type: Optional[str] = "", ins_id: int = 0, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     try:
         usages = usage_crud.get_usages(
             db=db, 
@@ -28,8 +28,10 @@ def read_usages(start_time: Optional[datetime] = "", end_time: Optional[datetime
             ins_belongs_to_group=ins_belongs_to_group,
             ins_group_id=ins_group_id,
             ins_cluster_id=ins_cluster_id,
-            ins_robot_type=ins_robot_type
+            ins_robot_type=ins_robot_type,
+            ins_id=ins_id
             )
+
         return generate_response("SUCCESS", "Usages are returned", usages)
     except Exception as e:
         return generate_response(status="FAILURE", message=str(e))
