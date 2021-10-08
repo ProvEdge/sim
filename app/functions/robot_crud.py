@@ -34,7 +34,9 @@ def edit_robot(db: Session, type: str, robot: robot_schema.RobotEdit):
 
     db.query(models.Robot).filter(models.Robot.type == type).update(attributes)
     db.commit()
-    db_robot = get_robot(db, robot.type)
+    if robot.type is not None:
+        db_robot = get_robot(db, robot.type)
+    else: db_robot = get_robot(db, type)
     return db_robot
 
 def delete_robot(db: Session, type: str):

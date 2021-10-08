@@ -3,6 +3,7 @@ from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, UniqueConst
 import sqlalchemy
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.elements import Null
+from sqlalchemy.sql.expression import column
 
 from database.database import Base
 
@@ -107,7 +108,21 @@ class Bill(Base):
     is_paid = Column(Boolean, nullable=False, default=False)
 
     __table_args__ = (
-        CheckConstraint("currency = 'USD' ", 'currency_options'),
+        CheckConstraint(name="currency_options_cc", sqltext="currency = 'USD' OR currency = 'TL'"),
+    )
+
+class PricingFormula(Base):
+    __tablename__ = "pricing_formulas"
+
+    name = Column(String, primary_key=True)
+    robot_type = Column(String, ForeignKey("robots.type"), nullable=False)
+    robot_coefficient = Column(Float, nullable=False)
+    time_unit = Column(String, nullable=False)
+    amount_per_time_unit = Column(Float, nullable=False)
+    currency = Column(String, nullable=False)
+
+    __table_args__ = (
+        CheckConstraint(name="currency_options_cc", sqltext="currency = 'USD' OR currency = 'TL'"),
     )
 
 # class Transaction(Base):
