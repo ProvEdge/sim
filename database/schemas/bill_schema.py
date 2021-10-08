@@ -6,7 +6,7 @@ from .generic import ResponseBase
 class BillBase(BaseModel):
     usage_id: int
     amount: float
-    currency: str
+    currency: str = "USD"
     is_paid: bool = False
 
 class BillCreate(BillBase):

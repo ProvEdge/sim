@@ -5,8 +5,8 @@ import requests, json
 from requests.exceptions import Timeout
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.sqltypes import Time
-from app.functions import git_rest_crud, instance_crud, usage_crud
-from database.schemas import argocd_schema, instance_schema, platform_schema
+from app.functions import bill_crud, git_rest_crud, instance_crud, usage_crud
+from database.schemas import argocd_schema, bill_schema, instance_schema, platform_schema
 from database.schemas.argocd_schema import ArgoCDResponse
 from database.schemas.usage_schema import UsageCreate, UsageEdit
 
@@ -325,11 +325,21 @@ def stop_instance(
             if refresh.status_code == 200:
                 usage = UsageEdit(end_time=datetime.now(), is_terminated=True)
                 edit_usage = usage_crud.edit_usage(db, db_usage.id, usage)
+                if edit_usage.is_terminated:
+
+                    bill = bill_schema.BillCreate(
+                        usage_id=db_usage.id,
+                        amount=5, # inject pricing formula
+                        currency="USD", # inject pricing formula
+                        is_paid=False
+                    )
+                    bill_create = bill_crud.create_bill(db, bill)
                 return ArgoCDResponse(
                     status_code=200,
                     data={
                         "git": edit_instance_values.data,
                         "usage": edit_usage,
+                        "bill": bill_create,
                         "argocd": refresh.data
                     }
                 )
