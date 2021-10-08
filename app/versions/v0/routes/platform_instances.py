@@ -1,7 +1,6 @@
 from typing import Optional, Union
 
 from fastapi import APIRouter, Header, Depends
-from pydantic.main import BaseModel
 from sqlalchemy.orm.session import Session
 
 from app import models
@@ -316,24 +315,3 @@ def get_commits(file: git_schema.FileCommits):
         return {
             "msg": str(e)
         }
-
-
-# @router.post("/create-values-yaml", deprecated=True, response_model=Union[dict, generic.ResponseBase])
-# def create_values_yaml(credentials: git_schema.AddValuesToGit):
-
-#     try:
-        
-#         create_values = git_rest_crud.add_instance_values(
-#             access_token=credentials.access_token,
-#             repo=credentials.repo,
-#             filepath=credentials.filepath,
-#             values_content=credentials.helm_values
-#         )
-
-        
-        
-#         return create_values.data
-#     except Exception as e:
-#         return {
-#             "ex": str(e)
-#         }

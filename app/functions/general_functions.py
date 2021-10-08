@@ -1,4 +1,5 @@
 from typing import Optional
+from fastapi import HTTPException
 from kubernetes import client
 
 def get_db():
@@ -11,6 +12,8 @@ def get_db():
         db.close()
 
 def generate_response(status: str, message: str, data = {}):
+    # if status == "FAILURE":
+    #     raise HTTPException(status_code=400, detail=message)
     return {
         "status": status,
         "message": message,
