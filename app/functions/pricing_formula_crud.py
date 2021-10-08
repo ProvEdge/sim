@@ -43,7 +43,7 @@ def edit_pricing_formula(db: Session, name: str, pricing_formula: pricing_formul
     return db_pricing_formula
 
 def delete_pricing_formula(db: Session, name: str):
-    db_pricing_formula = get_pricing_formula(db, id)
+    db_pricing_formula = get_pricing_formula(db, name)
     query_exec = db.query(models.PricingFormula).filter(models.PricingFormula.name == name).delete()
     db.commit()
     return db_pricing_formula
