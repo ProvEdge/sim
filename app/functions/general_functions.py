@@ -1,6 +1,8 @@
 from typing import Optional
 from fastapi import HTTPException
 from kubernetes import client
+import giteapy
+
 
 def get_db():
     from database.database import SessionLocal, engine
@@ -35,3 +37,30 @@ def get_k8s_api_client(host_url: str, bearer_token: str) -> client.ApiClient:
     api_client = client.ApiClient(conf)
 
     return api_client
+
+def gitea_repo_api(url: str, access_token: str):
+
+    conf = giteapy.Configuration()
+    conf.api_key["access_token"] = access_token
+    conf.host = url
+
+    repo_api = giteapy.RepositoryApi(
+        api_client=giteapy.ApiClient(conf)
+    )
+
+    return repo_api
+
+
+def gitea_user_api(url: str, access_token: str):
+
+    conf = giteapy.Configuration()
+    conf.api_key["access_token"] = access_token
+    conf.host = url
+
+    user_api = giteapy.UserApi(
+        api_client=giteapy.ApiClient(conf)
+    )
+
+    return user_api
+    #api = giteapy.RepositoryApi(giteapy.ApiClient(conf))
+    #resp = api.repo_get("tunahan", "jackal-helm")

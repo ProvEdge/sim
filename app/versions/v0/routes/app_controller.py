@@ -2,12 +2,20 @@ from fastapi import APIRouter
 #from sqlalchemy.sql.expression import desc
 
 from typing import Union
+
 from database.schemas import generic, keycloak_schema
 from app.functions import general_functions, keycloak_auth
 
-from . import platform_instances, groups, users, clusters, robots, instances, usages, bills, pricing_formulas
+from . import platform_instances, groups, users, clusters, robots, instances, usages, bills, pricing_formulas, gitea
 
 router = APIRouter()
+
+router.include_router(
+    gitea.router,
+    prefix="/gitea",
+    tags=["Gitea"]
+    #responses={418: {"description": "I'm a teapot"}},
+)
 
 router.include_router(
     platform_instances.router,
