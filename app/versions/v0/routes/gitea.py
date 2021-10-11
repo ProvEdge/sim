@@ -59,9 +59,80 @@ def create_repo(
     except Exception as e:
         return generate_response(
             "FAILURE",
-            "Cannot create repository"
+            "Cannot create repository, " + str(e)
         )
 
+
+@router.get("/file-content/{owner}/{repo}/{filepath}")
+def get_file_content(
+    owner: str,
+    repo: str,
+    filepath: str,
+    base_url: str = Header(gitea_schema.base_url), 
+    access_token: str = Header(gitea_schema.access_token)
+):
+
+    try:
+        get_content_request = gitea_rest_crud.get_file_content(
+            base_url=base_url,
+            access_token=access_token,
+            owner=owner,
+            repo=repo,
+            filepath=filepath
+        )
+        if get_content_request.is_successful:
+            return generate_response(
+                "SUCCESS",
+                "File content is fetched",
+                get_content_request.data
+            )
+        else: return generate_response(
+            "FAILURE",
+            "Error when fetching file content",
+            get_content_request.data
+        )
+    except Exception as e:
+        return generate_response(
+            "FAILURE",
+            "Cannot get file contents, " + str(e)
+        )
+
+
+@router.post("/file-content/{owner}/{repo}/{filepath}")
+def get_file_content(
+    body: gitea_schema.CreateFile,
+    owner: str,
+    repo: str,
+    filepath: str,
+    base_url: str = Header(gitea_schema.base_url), 
+    access_token: str = Header(gitea_schema.access_token)
+):
+
+    try:
+        create_file_request = gitea_rest_crud.create_file(
+            data=body,
+            base_url=base_url,
+            access_token=access_token,
+            owner=owner,
+            repo=repo,
+            filepath=filepath
+        )
+        if create_file_request.is_successful:
+            return generate_response(
+                "SUCCESS",
+                "File created",
+                create_file_request.data
+            )
+        else: return generate_response(
+            "FAILURE",
+            "Error when creating file",
+            create_file_request.data
+        )
+    except Exception as e:
+        return generate_response(
+            "FAILURE",
+            "Cannot create file, " + str(e)
+        )
 
 
 # @router.get("/{id}", response_model=Union[cluster_schema.GetClusterResponse, generic.ResponseBase])

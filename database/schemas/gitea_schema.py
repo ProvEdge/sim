@@ -13,4 +13,5 @@ class GiteaResponse(BaseModel):
 class CreateRepository(BaseModel):
     name: str
 
-
+class CreateFile(BaseModel):
+    content: str
