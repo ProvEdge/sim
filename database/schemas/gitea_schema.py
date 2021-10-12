@@ -15,3 +15,9 @@ class CreateRepository(BaseModel):
 
 class CreateFile(BaseModel):
     content: str
+
+class UpdateFile(BaseModel):
+    content: str
+
+class RenameRepo(BaseModel):
+    new_name: str

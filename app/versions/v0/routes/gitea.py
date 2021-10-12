@@ -26,10 +26,54 @@ def get_repo(owner: str, repo: str, url: str = "https://gitea.provedge.cloud/api
             repo=repo
         )
         
-        return generate_response("SUCCESS", "Clusters are returned", repo)
+        return generate_response("SUCCESS", "Repository is returned", repo)
     except Exception as e:
         return generate_response(status="FAILURE", message=str(e))
 
+
+@router.get("/fork/{owner}/{repo}")
+def fork_repo(owner: str, repo: str, url: str = "https://gitea.provedge.cloud/api/v1", access_token: str = "194e5b33eef95a4f905b4c28ede9bf8f76173b11"):
+    try:
+        repo = gitea_rest_crud.fork_repository(
+            url=url,
+            access_token=access_token,
+            owner=owner,
+            repo=repo
+        )
+        
+        return generate_response("SUCCESS", "Repository is forked", repo)
+    except Exception as e:
+        return generate_response(status="FAILURE", message=str(e))
+
+
+@router.put("/rename/{owner}/{repo}")
+def rename_repo(name: gitea_schema.RenameRepo, owner: str, repo: str, url: str = "https://gitea.provedge.cloud/api/v1", access_token: str = "194e5b33eef95a4f905b4c28ede9bf8f76173b11"):
+    try:
+        repo = gitea_rest_crud.change_repo_name(
+            url=url,
+            access_token=access_token,
+            owner=owner,
+            repo=repo,
+            new_name=name.new_name
+        )
+        
+        return generate_response("SUCCESS", "Repository is renamed", repo)
+    except Exception as e:
+        return generate_response(status="FAILURE", message=str(e))
+
+@router.delete("/{owner}/{repo}")
+def delete_repo(owner: str, repo: str, url: str = "https://gitea.provedge.cloud/api/v1", access_token: str = "194e5b33eef95a4f905b4c28ede9bf8f76173b11"):
+    try:
+        repo = gitea_rest_crud.delete_repository(
+            url=url,
+            access_token=access_token,
+            owner=owner,
+            repo=repo
+        )
+        
+        return generate_response("SUCCESS", "Repository is deleted", repo)
+    except Exception as e:
+        return generate_response(status="FAILURE", message=str(e))
 
 @router.post("/repository")
 def create_repo(
@@ -63,7 +107,7 @@ def create_repo(
         )
 
 
-@router.get("/file-content/{owner}/{repo}/{filepath}")
+@router.get("/file-content/{owner}/{repo}")
 def get_file_content(
     owner: str,
     repo: str,
@@ -98,8 +142,8 @@ def get_file_content(
         )
 
 
-@router.post("/file-content/{owner}/{repo}/{filepath}")
-def get_file_content(
+@router.post("/file-content/{owner}/{repo}")
+def create_file(
     body: gitea_schema.CreateFile,
     owner: str,
     repo: str,
@@ -133,6 +177,44 @@ def get_file_content(
             "FAILURE",
             "Cannot create file, " + str(e)
         )
+
+@router.put("/file-content/{owner}/{repo}")
+def update_file(
+    body: gitea_schema.UpdateFile,
+    owner: str,
+    repo: str,
+    filepath: str,
+    base_url: str = Header(gitea_schema.base_url), 
+    access_token: str = Header(gitea_schema.access_token)
+):
+
+    try:
+        update_file_request = gitea_rest_crud.update_file(
+            data=body,
+            base_url=base_url,
+            access_token=access_token,
+            owner=owner,
+            repo=repo,
+            filepath=filepath
+        )
+        if update_file_request.is_successful:
+            return generate_response(
+                "SUCCESS",
+                "File updated",
+                update_file_request.data
+            )
+        else: return generate_response(
+            "FAILURE",
+            "Error when updating file",
+            update_file_request.data
+        )
+    except Exception as e:
+        return generate_response(
+            "FAILURE",
+            "Cannot create file, " + str(e)
+        )
+
+
 
 
 # @router.get("/{id}", response_model=Union[cluster_schema.GetClusterResponse, generic.ResponseBase])
