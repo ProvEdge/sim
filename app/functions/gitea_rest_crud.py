@@ -1,8 +1,9 @@
 
 from giteapy.models.create_file_options import CreateFileOptions
+from giteapy.models.create_user_option import CreateUserOption
 from giteapy.models.edit_repo_option import EditRepoOption
 from giteapy.models.update_file_options import UpdateFileOptions
-from app.functions.general_functions import gitea_repo_api
+from app.functions.general_functions import gitea_admin_api, gitea_repo_api
 
 from giteapy.models.create_repo_option import CreateRepoOption
 from giteapy.models.create_file_options import CreateFileOptions
@@ -11,9 +12,9 @@ from database.schemas import gitea_schema
 import base64
 
 
-def get_repository(url: str, access_token: str, owner: str, repo: str):
+def get_repository(base_url: str, access_token: str, owner: str, repo: str):
     repo_api = gitea_repo_api(
-        url=url,
+        url=base_url,
         access_token=access_token
     )
 
@@ -22,9 +23,9 @@ def get_repository(url: str, access_token: str, owner: str, repo: str):
         repo=repo
     )
 
-def fork_repository(url: str, access_token: str, owner: str, repo: str):
+def fork_repository(base_url: str, access_token: str, owner: str, repo: str):
     repo_api = gitea_repo_api(
-        url=url,
+        url=base_url,
         access_token=access_token
     )
 
@@ -33,9 +34,9 @@ def fork_repository(url: str, access_token: str, owner: str, repo: str):
         repo=repo
     )
 
-def change_repo_name(url: str, access_token: str, owner: str, repo: str, new_name: str):
+def change_repo_name(base_url: str, access_token: str, owner: str, repo: str, new_name: str):
     repo_api = gitea_repo_api(
-        url=url,
+        url=base_url,
         access_token=access_token
     )
 
@@ -81,9 +82,9 @@ def create_repository(base_url: str, access_token: str, data: gitea_schema.Creat
             }
         )
 
-def delete_repository(url: str, access_token: str, owner: str, repo: str):
+def delete_repository(base_url: str, access_token: str, owner: str, repo: str):
     repo_api = gitea_repo_api(
-        url=url,
+        url=base_url,
         access_token=access_token
     )
 
@@ -98,8 +99,6 @@ def get_file_content(base_url: str, access_token: str, owner: str, repo: str, fi
             url=base_url,
             access_token=access_token
         )
-
-        
 
         content = api_instance.repo_get_contents(
             owner=owner,
@@ -205,6 +204,65 @@ def update_file(data: gitea_schema.UpdateFile, base_url: str, access_token: str,
         )
 
 
+### ADMIN API ###
+
+def create_user(user: gitea_schema.CreateUser, base_url: str, admin_access_token: str):
+    try:
+        api_instance = gitea_admin_api(
+            url=base_url,
+            access_token=admin_access_token
+        )
+        new_user = api_instance.admin_create_user(
+            body=CreateUserOption(
+                email=user.email,
+                full_name=user.full_name,
+                login_name=user.login_name,
+                must_change_password=False,
+                password=user.password,
+                send_notify=False,
+                username=user.username
+            )
+        )
+
+        return gitea_schema.GiteaResponse(
+            is_successful=True,
+            data={
+                "user": new_user
+            }
+        )
+    except Exception as e:
+        return gitea_schema.GiteaResponse(
+            is_successful=False,
+            data={
+                "msg": str(e),
+                #"from_service": new_file
+            }
+        )
+
+
+def get_users(base_url: str, admin_access_token: str):
+    try:
+        api_instance = gitea_admin_api(
+            url=base_url,
+            access_token=admin_access_token
+        )
+
+        users = api_instance.admin_get_all_users()
+
+        return gitea_schema.GiteaResponse(
+            is_successful=True,
+            data={
+                "users": users
+            }
+        )
+    except Exception as e:
+        return gitea_schema.GiteaResponse(
+            is_successful=False,
+            data={
+                "msg": str(e),
+                #"from_service": new_file
+            }
+        )
 
 def base64_to_str(base64_str: str):
     return base64.b64decode(base64_str).decode('utf-8')

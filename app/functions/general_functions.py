@@ -62,5 +62,16 @@ def gitea_user_api(url: str, access_token: str):
     )
 
     return user_api
-    #api = giteapy.RepositoryApi(giteapy.ApiClient(conf))
-    #resp = api.repo_get("tunahan", "jackal-helm")
+
+
+def gitea_admin_api(url: str, access_token: str):
+
+    conf = giteapy.Configuration()
+    conf.api_key["access_token"] = access_token
+    conf.host = url
+
+    admin_api = giteapy.AdminApi(
+        api_client=giteapy.ApiClient(conf)
+    )
+
+    return admin_api

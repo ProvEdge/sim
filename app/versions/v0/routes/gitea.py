@@ -16,11 +16,63 @@ models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
 
+
+@router.get("/users")
+def get_users(
+    base_url: str = Header(gitea_schema.base_url), 
+    admin_access_token: str = Header(gitea_schema.admin_access_token)
+):
+
+    try:
+        users = gitea_rest_crud.get_users(
+            base_url=base_url,
+            admin_access_token=admin_access_token
+        )
+
+        return generate_response(
+            "SUCCESS",
+            "Users are returned",
+            users
+        )
+    except Exception as e:
+        return generate_response(status="FAILURE", message=str(e))
+
+
+@router.post("/users")
+def create_user(
+    user: gitea_schema.CreateUser,
+    base_url: str = Header(gitea_schema.base_url), 
+    admin_access_token: str = Header(gitea_schema.admin_access_token)
+):
+
+    try:
+        new_user = gitea_rest_crud.create_user(
+            user=user,
+            base_url=base_url,
+            admin_access_token=admin_access_token
+        )
+
+        return generate_response(
+            "SUCCESS",
+            "User is created",
+            new_user
+        )
+    except Exception as e:
+        return generate_response(status="FAILURE", message=str(e))
+
+
+
+
 @router.get("/{owner}/{repo}")
-def get_repo(owner: str, repo: str, url: str = "https://gitea.provedge.cloud/api/v1", access_token: str = "194e5b33eef95a4f905b4c28ede9bf8f76173b11"):
+def get_repo(
+    owner: str, 
+    repo: str, 
+    base_url: str = Header(gitea_schema.base_url), 
+    access_token: str = Header(gitea_schema.access_token)
+):
     try:
         repo = gitea_rest_crud.get_repository(
-            url=url,
+            base_url=base_url,
             access_token=access_token,
             owner=owner,
             repo=repo
@@ -32,10 +84,15 @@ def get_repo(owner: str, repo: str, url: str = "https://gitea.provedge.cloud/api
 
 
 @router.get("/fork/{owner}/{repo}")
-def fork_repo(owner: str, repo: str, url: str = "https://gitea.provedge.cloud/api/v1", access_token: str = "194e5b33eef95a4f905b4c28ede9bf8f76173b11"):
+def fork_repo(
+    owner: str, 
+    repo: str, 
+    base_url: str = Header(gitea_schema.base_url), 
+    access_token: str = Header(gitea_schema.access_token)
+):
     try:
         repo = gitea_rest_crud.fork_repository(
-            url=url,
+            base_url=base_url,
             access_token=access_token,
             owner=owner,
             repo=repo
@@ -47,10 +104,16 @@ def fork_repo(owner: str, repo: str, url: str = "https://gitea.provedge.cloud/ap
 
 
 @router.put("/rename/{owner}/{repo}")
-def rename_repo(name: gitea_schema.RenameRepo, owner: str, repo: str, url: str = "https://gitea.provedge.cloud/api/v1", access_token: str = "194e5b33eef95a4f905b4c28ede9bf8f76173b11"):
+def rename_repo(
+    name: gitea_schema.RenameRepo, 
+    owner: str, 
+    repo: str, 
+    base_url: str = Header(gitea_schema.base_url), 
+    access_token: str = Header(gitea_schema.access_token)
+):
     try:
         repo = gitea_rest_crud.change_repo_name(
-            url=url,
+            base_url=base_url,
             access_token=access_token,
             owner=owner,
             repo=repo,
@@ -61,11 +124,17 @@ def rename_repo(name: gitea_schema.RenameRepo, owner: str, repo: str, url: str =
     except Exception as e:
         return generate_response(status="FAILURE", message=str(e))
 
+
 @router.delete("/{owner}/{repo}")
-def delete_repo(owner: str, repo: str, url: str = "https://gitea.provedge.cloud/api/v1", access_token: str = "194e5b33eef95a4f905b4c28ede9bf8f76173b11"):
+def delete_repo(
+    owner: str, 
+    repo: str, 
+    base_url: str = Header(gitea_schema.base_url), 
+    access_token: str = Header(gitea_schema.access_token)
+):
     try:
         repo = gitea_rest_crud.delete_repository(
-            url=url,
+            base_url=base_url,
             access_token=access_token,
             owner=owner,
             repo=repo
@@ -74,6 +143,7 @@ def delete_repo(owner: str, repo: str, url: str = "https://gitea.provedge.cloud/
         return generate_response("SUCCESS", "Repository is deleted", repo)
     except Exception as e:
         return generate_response(status="FAILURE", message=str(e))
+
 
 @router.post("/repository")
 def create_repo(
