@@ -212,6 +212,7 @@ def create_user(user: gitea_schema.CreateUser, base_url: str, admin_access_token
             url=base_url,
             access_token=admin_access_token
         )
+
         new_user = api_instance.admin_create_user(
             body=CreateUserOption(
                 email=user.email,
