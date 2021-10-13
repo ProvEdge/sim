@@ -38,7 +38,7 @@ def get_users(
         return generate_response(status="FAILURE", message=str(e))
 
 
-@router.post("/users")
+@router.post("/users", deprecated=True)
 def create_user(
     user: gitea_schema.CreateUser,
     base_url: str = Header(gitea_schema.base_url), 
@@ -285,107 +285,3 @@ def update_file(
         )
 
 
-
-
-# @router.get("/{id}", response_model=Union[cluster_schema.GetClusterResponse, generic.ResponseBase])
-# def read_cluster_by_id(id: int, db: Session = Depends(get_db)):
-#     try:
-#         db_cluster = cluster_crud.get_cluster(db, id=id)
-#         if db_cluster is None:
-#             return generate_response(
-#                 "FAILURE",
-#                 "Cluster not found"
-#             )
-#         return generate_response(
-#             "SUCCESS",
-#             "Cluster is returned",
-#             db_cluster
-#         )
-#     except Exception as e:
-#         return generate_response(
-#             "FAILURE",
-#             str(e)
-#         )
-
-# # @router.get("/name/{name}", response_model=Union[organization_schema.GetOrganizationResponse, generic.ResponseBase])
-# # def read_organization_by_name(name: str, db: Session = Depends(get_db)):
-# #     try:
-# #         db_org = organization_crud.get_organization_by_name(db, name=name)
-# #         if db_org is None:
-# #             return generate_response(
-# #                 "FAILURE",
-# #                 "No such an organization found"
-# #             )
-# #         return generate_response(
-# #             "SUCCESS",
-# #             "Organization is returned",
-# #             db_org
-# #         )
-# #     except Exception as e:
-# #         return generate_response(
-# #             "FAILURE",
-# #             str(e)
-# #         )
-
-# @router.post("", response_model=Union[cluster_schema.GetClusterResponse, generic.ResponseBase])
-# def create_cluster(cluster: cluster_schema.ClusterCreate, db: Session = Depends(get_db)):
-#     try:
-#         cls = cluster_crud.create_cluster(db=db, cluster=cluster)
-
-#         return generate_response(
-#             "SUCCESS",
-#             "Cluster is created",
-#             cls
-#         )
-#     except Exception as e:
-#         return generate_response(
-#             "FAILURE",
-#             str(e)
-#         )
-
-
-# @router.patch("/{id}", response_model=Union[cluster_schema.GetClusterResponse, generic.ResponseBase])
-# def edit_cluster(cluster: cluster_schema.ClusterEdit, id: int, db: Session = Depends(get_db)):
-#     try:
-#         db_cluster = cluster_crud.get_cluster(db, id=id)
-
-#         if not db_cluster:
-#             return generate_response(
-#                 "FAILURE",
-#                 "This cluster does not exist"
-#             )
-
-#         cls = cluster_crud.edit_cluster(db=db, cluster=cluster, id=id)
-
-#         return generate_response(
-#             "SUCCESS",
-#             "Cluster is edited",
-#             cls
-#         )
-#     except Exception as e:
-#         return generate_response(
-#             "FAILURE",
-#             str(e)
-#         )
-
-# @router.delete("/{id}", response_model=Union[cluster_schema.GetClusterResponse, generic.ResponseBase])
-# def delete_cluster(id: int, db: Session = Depends(get_db)):
-#     try:
-#         db_cluster = cluster_crud.get_cluster(db, id=id)
-#         if db_cluster is None:
-#             return generate_response(
-#                 "FAILURE",
-#                 "Cluster not found"
-#             )
-
-#         delete_exec = cluster_crud.delete_cluster(db, id=id)
-#         return generate_response(
-#             "SUCCESS",
-#             "Cluster is deleted",
-#             delete_exec
-#         )
-#     except Exception as e:
-#         return generate_response(
-#             "FAILURE",
-#             str(e)
-#         )

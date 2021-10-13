@@ -7,6 +7,9 @@ from app.functions.general_functions import gitea_admin_api, gitea_repo_api
 
 from giteapy.models.create_repo_option import CreateRepoOption
 from giteapy.models.create_file_options import CreateFileOptions
+from giteapy.models.create_key_option import CreateKeyOption
+
+
 from database.schemas import gitea_schema
 
 import base64
@@ -256,6 +259,22 @@ def get_users(base_url: str, admin_access_token: str):
                 "users": users
             }
         )
+    except Exception as e:
+        return gitea_schema.GiteaResponse(
+            is_successful=False,
+            data={
+                "msg": str(e),
+                #"from_service": new_file
+            }
+        )
+
+def create_public_key(username: str, base_url: str, admin_access_token: str):
+    try:
+        api_instance = gitea_admin_api(
+            url=base_url,
+            access_token=admin_access_token
+        )
+
     except Exception as e:
         return gitea_schema.GiteaResponse(
             is_successful=False,

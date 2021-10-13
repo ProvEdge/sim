@@ -20,7 +20,8 @@ router.include_router(
 router.include_router(
     platform_instances.router,
     prefix="/platform/instances",
-    tags=["Instances - Platform Scope"]
+    tags=["Instances - Platform Scope"],
+    deprecated=True
     #responses={418: {"description": "I'm a teapot"}},
 )
 
