@@ -41,7 +41,8 @@ def get_k8s_api_client(host_url: str, bearer_token: str) -> client.ApiClient:
 def gitea_repo_api(url: str, access_token: str):
 
     conf = giteapy.Configuration()
-    conf.api_key["access_token"] = access_token
+    conf.api_key["Authorization"] = access_token
+    conf.get_api_key_with_prefix["Authorization"] = "Bearer"
     conf.host = url
 
     repo_api = giteapy.RepositoryApi(
@@ -54,7 +55,8 @@ def gitea_repo_api(url: str, access_token: str):
 def gitea_user_api(url: str, access_token: str):
 
     conf = giteapy.Configuration()
-    conf.api_key["access_token"] = access_token
+    conf.api_key["Authorization"] = access_token
+    conf.api_key_prefix["Authorization"] = "Bearer"
     conf.host = url
 
     user_api = giteapy.UserApi(
