@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from .generic import ResponseBase
 
 base_url = "https://gitea.provedge.cloud/api/v1"
-access_token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IkZuNXBWWkZFRlVrbFR5Wk5zVkxOdzJ1MDh4Q2lfTFZjdHdHUUtuY0QxclEiLCJ0eXAiOiJKV1QifQ.eyJnbnQiOjQsInR0IjowLCJleHAiOjE2MzQyNTQ5MjcsImlhdCI6MTYzNDI1MTMyN30.AD6d6p-aGzHEwUMTvKEkN7DWuti8O5Quv-rV6iqA2PErcr1lQc0dHfkQ9doXD5S1NCuFvnaoKx1cqr3WSXMmOAhfQyFl-0n1KeZe1ddOOoKl_tS81wv1jGQDFvflRDJ8-IWmLa0VMlD7A2VdK04XVNx1xH7nkVWhwt4Dst81QzLOCykbLAP3EMHokZCOHAkqZEffHpFoOqYQqYChWbnecNem2DVI-fDNpxZRfiGNzrQ6OEMr23aNb3pSU82JxvjnMUqujKO40KiGkGULDQNldpwGbgMs34q-eKGpLdLry9oC87tkFPc25qBT2WOL6J4EctsA7VrE4E4N5ogi7pPeKirbEkrcAOWge_Qqrt5Auml4V8wAUpyKQUjauqMDHC4APj9wHjjd36Hwk19a_zaWhqhWgNI6h54sZwNmFfUryRvx5zKXHiXfZQq8vqp2jEBqazpySsZBRYPH6AEBB-x9Dz0MK-6kXohOKw-Bz-L2hpjoVMrpsP5xrc5SB1mWPNzf_k4GJ9MA1Vc8qR_c_ShFvpd2cvexPVL0bqiQZqwzfkWe2KeWi_Id-eUq94EvinebbJ0LueIjRsV-xCTWhsk6-0ociWqr16loWD1MLhSeOWmMmX3koR-OEZb-0fWm0d6yR2RjfomKGJ_2XkWvAN27_vyie_0Z2l8Dy9GzPLy9dr0"
+access_token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IkZuNXBWWkZFRlVrbFR5Wk5zVkxOdzJ1MDh4Q2lfTFZjdHdHUUtuY0QxclEiLCJ0eXAiOiJKV1QifQ.eyJnbnQiOjQsInR0IjowLCJleHAiOjE2MzQzMDMzMTYsImlhdCI6MTYzNDI5OTcxNn0.GdYlQ928nnre9O1ASprKpBySzugO-6blvcMD8gjwaVF0QaZaSVA66TKvMkfrArtezhxFgJfcwG4RIToSqpeiERZ5y6mbM1XP110giHoVEbgxVFL3OEPNWB4fzyQrmJvqEgwsHZbWeX8Fq94AQfHT-D3_cDBsFYLFCqQdoY9CFni-PfvFK2qTLCeNtfuY_jZe8ieSw034gFDqTIVg5vCkjCBHIF0pfB6E2Ijb32WsrAlK38A6Z62e9kY8dE27RuaVM7J-Z0HpGIxijVATV5y4S7y0BqR4q3Qkt_sgLdYglfcvRXqu7X9__ha7vuf-8LJE0zCuawUwe-E_yMq-3EUhcpwAqQ0ePJxl7PFwbL3JJzTEOCJPhtCzzdgbX3ia5axLkofdDLAQqrafSsS3-1bzruyoz7LbNmIp3yrN-oz4_Bpzov4em3fssguKCEdcywJTebMqK8ZuZ4Ltm-nxzND9aLUFigoAqsm2pHssggg3uK5Xi6-pOc9akfZ6VTbXn7s9MPmC3dvUQTQ4Tt2H1QawpHjUlw83jg9keqxECTwuFrdSQt-0UBBKxvacdrNjbaqtCP039VHp2kzONl4oxBM9IQcH3jTlMfo99neEIWJcmQe-lxH8Y2CQmDp72_-M97TKwJ5CXP72hInnr07e47QAM8WQkCTCQoQfhn2JRL6zV6A"
 admin_access_token = "065f9f4243bba4c77f45014995fda349c0168f26"
 
 class GiteaResponse(BaseModel):
@@ -14,11 +14,7 @@ class GiteaResponse(BaseModel):
 class CreateRepository(BaseModel):
     name: str
 
-class CreateFile(BaseModel):
-    content: str
 
-class UpdateFile(BaseModel):
-    content: str
 
 class RenameRepo(BaseModel):
     new_name: str
@@ -37,3 +33,9 @@ class CreateUser(BaseModel):
 class CreateBranch(BaseModel):
     new_branch_name: str
     old_branch_name: str
+
+class UpdateFile(BaseModel):
+    content: str
+
+class CreateFile(BaseModel):
+    content: str

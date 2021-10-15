@@ -234,12 +234,12 @@ def delete_branch(
         return generate_response(status="FAILURE", message=str(e))
 
 
-@router.get("/{owner}/{repo}/contents/{filepath}")
+@router.get("/{owner}/{repo}/contents")
 def get_content(
     owner: str, 
     repo: str,
+    branch: str,
     filepath: str,
-    branch: str = "",
     base_url: str = Header(gitea_schema.base_url), 
     access_token: str = Header(gitea_schema.access_token)
 ):
@@ -264,6 +264,119 @@ def get_content(
                 "FAILURE",
                 "Cannot get content",
                 get_content_req.data
+            )
+        
+    except Exception as e:
+        return generate_response(status="FAILURE", message=str(e))
+
+
+@router.post("/{owner}/{repo}/contents")
+def create_file(
+    owner: str, 
+    repo: str,
+    filepath: str,
+    branch: str,
+    body: gitea_schema.CreateFile,
+    base_url: str = Header(gitea_schema.base_url), 
+    access_token: str = Header(gitea_schema.access_token)
+):
+    try:
+        create_file_req = gitea_rest_crud.create_file(
+            base_url=base_url,
+            access_token=access_token,
+            owner=owner,
+            repo=repo,
+            branch=branch,
+            filepath=filepath,
+            body=body
+        )
+
+        if create_file_req.status_code == 201:
+            return generate_response(
+                "SUCCESS", 
+                "File is created", 
+                create_file_req.data
+            )
+        else:
+            return generate_response(
+                "FAILURE",
+                "Cannot create content",
+                create_file_req.data
+            )
+        
+    except Exception as e:
+        return generate_response(status="FAILURE", message=str(e))
+
+
+
+@router.put("/{owner}/{repo}/contents")
+def update_content(
+    owner: str, 
+    repo: str,
+    filepath: str,
+    branch: str,
+    body: gitea_schema.UpdateFile,
+    base_url: str = Header(gitea_schema.base_url), 
+    access_token: str = Header(gitea_schema.access_token)
+):
+    try:
+        update_content_req = gitea_rest_crud.update_file_content(
+            base_url=base_url,
+            access_token=access_token,
+            owner=owner,
+            repo=repo,
+            branch=branch,
+            filepath=filepath,
+            body=body
+        )
+
+        if update_content_req.status_code == 200:
+            return generate_response(
+                "SUCCESS", 
+                "Content is updated", 
+                update_content_req.data
+            )
+        else:
+            return generate_response(
+                "FAILURE",
+                "Cannot update content",
+                update_content_req.data
+            )
+        
+    except Exception as e:
+        return generate_response(status="FAILURE", message=str(e))
+
+
+@router.delete("/{owner}/{repo}/contents")
+def delete_file(
+    owner: str, 
+    repo: str,
+    filepath: str,
+    branch: str,
+    base_url: str = Header(gitea_schema.base_url),
+    access_token: str = Header(gitea_schema.access_token)
+):
+    try:
+        delete_content_req = gitea_rest_crud.delete_file(
+            base_url=base_url,
+            access_token=access_token,
+            owner=owner,
+            repo=repo,
+            branch=branch,
+            filepath=filepath
+        )
+
+        if delete_content_req.status_code == 200:
+            return generate_response(
+                "SUCCESS",
+                "File is deleted",
+                delete_content_req.data
+            )
+        else:
+            return generate_response(
+                "FAILURE",
+                "Cannot delete file",
+                delete_content_req.data
             )
         
     except Exception as e:
