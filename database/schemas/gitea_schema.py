@@ -54,9 +54,6 @@ class HelmValues(BaseModel):
     rosbridge_port: int = 31004
     webviz_port: int = 31005
 
-class CreateInstanceRepository(BaseModel):
-    robot_type: str
-
 class ArgoConfiguration(BaseModel):
     argo_cluster: str = "https://kubernetes.default.svc"
     helm_path: str = "."
@@ -72,6 +69,5 @@ class InstanceCreate(BaseModel):
 
 class CreateInstance(BaseModel):
     instance: InstanceCreate
-    repo: CreateInstanceRepository
     helm: HelmValues
     argo: ArgoConfiguration

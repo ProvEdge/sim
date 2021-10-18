@@ -20,7 +20,7 @@ def create_instance(
 
     robot = robot_crud.get_robot(
         db=db,
-        type=body.repo.robot_type
+        type=body.instance.robot_type
     )
 
     if robot is None:
