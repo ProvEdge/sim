@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from .. import models
 from database.schemas import instance_schema
 
-def get_instances(db: Session, user_id: str, belongs_to_group: bool, group_id: str, cluster_id: int, robot_type: str, skip: int = 0, limit: int = 100):
+def get_instances(db: Session, user_id: str="", belongs_to_group: bool=False, group_id: str="", cluster_id: int=0, robot_type: str="", skip: int = 0, limit: int = 100):
     instances = db.query(models.Instance)
     if user_id != "":
         instances = instances.filter(models.Instance.user_id == user_id)
@@ -36,6 +36,7 @@ def create_instance(db: Session, instance: instance_schema.InstanceCreate):
         #configmaps=instance.configmaps,
         robot_type=instance.robot_type,
         values_repository=instance.values_repository,
+        values_branch=instance.values_branch,
         values_path=instance.values_path,
         argocd_project_name=instance.argocd_project_name
     )

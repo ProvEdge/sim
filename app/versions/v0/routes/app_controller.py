@@ -6,9 +6,16 @@ from typing import Union
 from database.schemas import generic, keycloak_schema
 from app.functions import general_functions, keycloak_auth
 
-from . import platform_instances, groups, users, clusters, robots, instances, usages, bills, pricing_formulas, gitea
+from . import platform_instances, groups, users, clusters, robots, instances, usages, bills, pricing_formulas, gitea, instance_management
 
 router = APIRouter()
+
+router.include_router(
+    instance_management.router,
+    prefix="/im",
+    tags=["Instance Management"]
+    #responses={418: {"description": "I'm a teapot"}},
+)
 
 router.include_router(
     gitea.router,

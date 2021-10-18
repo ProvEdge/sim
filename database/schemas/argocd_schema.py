@@ -3,6 +3,8 @@ from pydantic import BaseModel
 
 from .generic import ResponseBase
 
+argocd_server_url = "https://localhost:8080/api/v1"
+
 class ArgoCDResponse():
     def __init__(self, status_code: int, data: dict):
         self.status_code = status_code

@@ -2,9 +2,11 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from .generic import ResponseBase
+from database.schemas import instance_schema
 
-base_url = "https://gitea.provedge.cloud/api/v1"
-access_token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IkZuNXBWWkZFRlVrbFR5Wk5zVkxOdzJ1MDh4Q2lfTFZjdHdHUUtuY0QxclEiLCJ0eXAiOiJKV1QifQ.eyJnbnQiOjQsInR0IjowLCJleHAiOjE2MzQzMDMzMTYsImlhdCI6MTYzNDI5OTcxNn0.GdYlQ928nnre9O1ASprKpBySzugO-6blvcMD8gjwaVF0QaZaSVA66TKvMkfrArtezhxFgJfcwG4RIToSqpeiERZ5y6mbM1XP110giHoVEbgxVFL3OEPNWB4fzyQrmJvqEgwsHZbWeX8Fq94AQfHT-D3_cDBsFYLFCqQdoY9CFni-PfvFK2qTLCeNtfuY_jZe8ieSw034gFDqTIVg5vCkjCBHIF0pfB6E2Ijb32WsrAlK38A6Z62e9kY8dE27RuaVM7J-Z0HpGIxijVATV5y4S7y0BqR4q3Qkt_sgLdYglfcvRXqu7X9__ha7vuf-8LJE0zCuawUwe-E_yMq-3EUhcpwAqQ0ePJxl7PFwbL3JJzTEOCJPhtCzzdgbX3ia5axLkofdDLAQqrafSsS3-1bzruyoz7LbNmIp3yrN-oz4_Bpzov4em3fssguKCEdcywJTebMqK8ZuZ4Ltm-nxzND9aLUFigoAqsm2pHssggg3uK5Xi6-pOc9akfZ6VTbXn7s9MPmC3dvUQTQ4Tt2H1QawpHjUlw83jg9keqxECTwuFrdSQt-0UBBKxvacdrNjbaqtCP039VHp2kzONl4oxBM9IQcH3jTlMfo99neEIWJcmQe-lxH8Y2CQmDp72_-M97TKwJ5CXP72hInnr07e47QAM8WQkCTCQoQfhn2JRL6zV6A"
+gitea_server = "https://gitea.provedge.cloud"
+base_url =  gitea_server + "/api/v1"
+access_token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IkZuNXBWWkZFRlVrbFR5Wk5zVkxOdzJ1MDh4Q2lfTFZjdHdHUUtuY0QxclEiLCJ0eXAiOiJKV1QifQ.eyJnbnQiOjUsInR0IjowLCJleHAiOjE2MzQ1OTUyNTQsImlhdCI6MTYzNDU5MTY1NH0.VXkIIHYY9c_Cz0F5uJFBl06RcZtgC14R7B2PRbxNVCZZTWwBLXOv8OcRfOLAPVTfg9IJJ3pkigyujgR-kEj0IflonIbENqzS1EoExYebo0aeypTRpOgo1nJcPyxXTvPuYuTnU9bop3osuzNKBPnybiyexYL0ROw0QgIKrS-kqx217TzJGD7PUxEc_RsFdihy5S4y1x_utyAuWPB8Foymtdku_aqHuCUhLib9Y_rohkFJVVl8ZYG4grXNEcX6qIQvtD2G1UbX0Nt1HOGD9lFSbsax1xBmPi1Qbf1NSSf-9OOgoUao_yKVoJEAJlqjZ1kSe2ZjUVobGIdK_ey3Xm_YxROmqGrVxaZDuG4AmfzzAk6r9FXUIeWHSNZylXgaB_nZpp-UM4Iof2Pbq9xZCwooTyieHNRF684nLEKMUc5-uB5J9wUBUnV1YBa_tUQ11BToMbWtBuataAc6msSgMARQv1Z0i2clJjzRyzG_v8ZplqPhYbtrxUHhpWasH49bs5LEHjjzEymfDoT-972kKad47lY7TNn25lQhZLuWdD2wrXilnrzzV4c84e2HeHFNJxMqYXMF50AqrOIcjWoGldXzx1DcU0VgptEBXrkX4J0ypNoYhaWz7QXkdG9GpI3z26SzxJTTdP1bTP_lGFIBucejHz_s6k1BG0xBIIlnuQjsgt4"
 admin_access_token = "065f9f4243bba4c77f45014995fda349c0168f26"
 
 class GiteaResponse(BaseModel):
@@ -39,3 +41,37 @@ class UpdateFile(BaseModel):
 
 class CreateFile(BaseModel):
     content: str
+
+class HelmValues(BaseModel):
+    namespace: str = "tunahan"
+    cm_start_name: str = "jackal-start"
+    cm_supervisord_name: str = "jackal-supervisord"
+    dep_name: str = "jackal-1"
+    replicas: int = 0
+    http_port: int = 31001
+    webrtc_port: int = 31002
+    theia_port: int = 31003
+    rosbridge_port: int = 31004
+    webviz_port: int = 31005
+
+class CreateInstanceRepository(BaseModel):
+    robot_type: str
+
+class ArgoConfiguration(BaseModel):
+    argo_cluster: str = "https://kubernetes.default.svc"
+    helm_path: str = "."
+
+class InstanceCreate(BaseModel):
+    name: str
+    user_id: str
+    belongs_to_group: bool
+    group_id: str
+    cluster_id: int
+    robot_type: str = "jackal"
+    argocd_project_name: str
+
+class CreateInstance(BaseModel):
+    instance: InstanceCreate
+    repo: CreateInstanceRepository
+    helm: HelmValues
+    argo: ArgoConfiguration

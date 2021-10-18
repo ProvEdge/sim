@@ -15,6 +15,7 @@ class InstanceBase(BaseModel):
     #configmaps: str
     robot_type: str = "jackal"
     values_repository: str = "tunahanertekin/jackal-helm"
+    values_branch: str
     values_path: str = "values/"
     argocd_project_name: str
 
@@ -33,6 +34,7 @@ class InstanceEdit(BaseModel):
     #configmaps: Optional[str]
     robot_type: Optional[str]
     values_repository: Optional[str]
+    values_branch: Optional[str]
     values_path: Optional[str]
     argocd_project_name: Optional[str]
 

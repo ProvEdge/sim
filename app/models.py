@@ -43,6 +43,8 @@ class Robot(Base):
     gpu_mb = Column(Integer, nullable=True)
     cpu_mb = Column(Integer, nullable=False)
     ram_mb = Column(Integer, nullable=False)
+    base_repo_owner = Column(String, nullable=False)
+    base_repo_name = Column(String, nullable=False)
 
 class Instance(Base):
     __tablename__ = "instances"
@@ -60,13 +62,14 @@ class Instance(Base):
     #configmaps = Column(String(200), nullable=False)
     robot_type = Column(String, ForeignKey("robots.type"), nullable=False)
     values_repository = Column(String, nullable=False)
+    values_branch = Column(String, nullable=False)
     values_path = Column(String, nullable=False)
     argocd_project_name = Column(String, nullable=False, unique=True)
     
     __table_args__ = (
         #UniqueConstraint('cluster_id', 'namespace', 'deployment', name="cluster_ns_dep_uc"),
         UniqueConstraint('user_id', 'name', name="user_id_instance_name_uc"),
-        UniqueConstraint('values_repository', 'values_path', name="repo_path_uc"),
+        UniqueConstraint('values_repository', 'values_branch', 'values_path', name="repo_path_uc"),
     )
 
 class Usage(Base):
@@ -91,6 +94,7 @@ class Usage(Base):
     #ins_configmaps = Column(String(100), nullable=False)
     ins_robot_type = Column(String, nullable=False)
     ins_values_repository = Column(String, nullable=False)
+    ins_values_branch = Column(String, nullable=False)
     ins_values_path = Column(String, nullable=False)
     ins_argocd_project_name = Column(String, nullable=False)
 

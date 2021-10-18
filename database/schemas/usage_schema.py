@@ -23,6 +23,7 @@ class UsageBase(BaseModel):
     #ins_configmaps: str
     ins_robot_type: str
     ins_values_repository: str
+    ins_values_branch: str
     ins_values_path: str
     ins_argocd_project_name: str
 

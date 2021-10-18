@@ -48,6 +48,7 @@ def create_usage(db: Session, usage: usage_schema.UsageCreate):
         #ins_configmaps=db_instance.configmaps,
         ins_robot_type=db_instance.robot_type,
         ins_values_repository=db_instance.values_repository,
+        ins_values_branch=db_instance.values_branch,
         ins_values_path=db_instance.values_path,
         ins_argocd_project_name=db_instance.argocd_project_name
     )
