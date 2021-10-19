@@ -1,11 +1,13 @@
-from os import path
 from pydantic.main import BaseModel
 from sqlalchemy.orm.session import Session
-from app.functions import argocd_rest_crud, instance_crud
+from app.functions import argocd_rest_crud, instance_crud, usage_crud
 from database.schemas import argocd_schema, gitea_schema, instance_schema
 from app.functions import gitea_rest_crud, robot_crud
 
 import yaml, json, requests
+from datetime import datetime
+
+from database.schemas.usage_schema import UsageCreate, UsageEdit
 
 class InstanceManagementResponse(BaseModel):
     status_code: int
@@ -138,7 +140,154 @@ def create_instance(
         )
 
 
+def refresh_instance(
+    instance_id: int,
+    db: Session
+) -> InstanceManagementResponse:
+    instance = instance_crud.get_instance(
+        db=db,
+        id=instance_id
+    )
+
+    refresh_req = refresh_argocd_application(
+        instance.argocd_project_name
+    )
+
+    return InstanceManagementResponse(
+        status_code=refresh_req.status_code,
+        data=refresh_req.data
+    )
+
+def start_instance(
+    base_url: str,
+    access_token: str,
+    instance_id: int,
+    db: Session
+) -> InstanceManagementResponse:
+
+    instance = instance_crud.get_instance(
+        db=db,
+        id=instance_id
+    )
+
+    if instance is None:
+        return InstanceManagementResponse(
+            status_code=400,
+            data={
+                "msg": "Instance is not found"
+            }
+        )
+
+    user = gitea_rest_crud.get_authenticated_user(
+        base_url=base_url,
+        access_token=access_token
+    ).data
+
+    values_obj = gitea_schema.EditHelmValues(
+        replicas=1
+    )
+
     
+    edit_helm_values_req = gitea_rest_crud.edit_helm_values(
+        base_url=base_url,
+        access_token=access_token,
+        owner=user["username"],
+        repo=instance.values_repository,
+        branch=instance.values_branch,
+        filepath=instance.values_path,
+        values_content=values_obj
+    )
+
+    refresh_instance_req = refresh_instance(
+        instance_id=instance_id,
+        db=db
+    )
+
+    new_usage_req = usage_crud.create_usage(
+        db=db,
+        usage=UsageCreate(
+            instance_id=instance_id
+        )
+    )
+
+    return InstanceManagementResponse(
+        status_code=edit_helm_values_req.status_code,
+        data={
+            "helm": edit_helm_values_req.data,
+            "usage": new_usage_req,
+            "argocd": refresh_instance_req.data
+        }
+    )
+
+
+
+def stop_instance(
+    base_url: str,
+    access_token: str,
+    instance_id: int,
+    db: Session
+) -> InstanceManagementResponse:
+
+    instance = instance_crud.get_instance(
+        db=db,
+        id=instance_id
+    )
+
+    if instance is None:
+        return InstanceManagementResponse(
+            status_code=400,
+            data={
+                "msg": "Instance is not found"
+            }
+        )
+
+    user = gitea_rest_crud.get_authenticated_user(
+        base_url=base_url,
+        access_token=access_token
+    ).data
+
+    values_obj = gitea_schema.EditHelmValues(
+        replicas=0
+    )
+
+    
+    edit_helm_values_req = gitea_rest_crud.edit_helm_values(
+        base_url=base_url,
+        access_token=access_token,
+        owner=user["username"],
+        repo=instance.values_repository,
+        branch=instance.values_branch,
+        filepath=instance.values_path,
+        values_content=values_obj
+    )
+
+    refresh_instance_req = refresh_instance(
+        instance_id=instance_id,
+        db=db
+    )
+
+    db_usages = usage_crud.get_usages(
+        db,
+        ins_id=instance_id,
+        is_terminated=False
+    )
+
+    db_usage = db_usages[0]
+
+    edit_usage_req = usage_crud.edit_usage(
+        db=db,
+        id=db_usage.id,
+        usage=UsageEdit(end_time=datetime.now(), is_terminated=True)
+    )
+
+    return InstanceManagementResponse(
+        status_code=edit_helm_values_req.status_code,
+        data={
+            "helm": edit_helm_values_req.data,
+            "usage": edit_usage_req,
+            "argocd": refresh_instance_req.data
+        }
+    )
 
 
 
@@ -223,6 +372,32 @@ def create_argocd_application(
         )
         
    
+
+def refresh_argocd_application(app_name: str):
+    url = argocd_schema.argocd_server_url + "/applications/" + app_name + "?refresh=normal"
+
+    token_res = argocd_rest_crud.get_bearer_token(
+        {
+            "username": "admin",
+            "password": "ncHjjNs7De47HaMm"
+        }
+    )
+
+    token = token_res.data["token"]
+
+    auth_header = {
+        "Cookie": "argocd.token=" + token
+    }
+
+    response =  requests.get(url=url, headers=auth_header, verify=False)
+
+    status_code = response.status_code # response.status_code
+    data = response.json()
+
+    return argocd_schema.ArgoCDResponse(
+        status_code=status_code,
+        data=data
+    )
 
 
 

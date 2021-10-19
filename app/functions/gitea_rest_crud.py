@@ -1,7 +1,8 @@
 
+from app.functions.git_rest_crud import helm_json_to_yaml
 from database.schemas import gitea_schema
 
-import base64, requests, json
+import base64, requests, json, yaml
 
 def prepare_auth_header(token: str):
     return {
@@ -287,6 +288,84 @@ def delete_file(base_url: str, access_token: str, owner: str, repo: str, branch:
         data=data
     )
 
+
+
+
+def edit_helm_values(
+    base_url: str,
+    access_token: str, 
+    owner: str,
+    repo: str,
+    branch: str, 
+    filepath: str, 
+    values_content: gitea_schema.EditHelmValues
+) -> gitea_schema.GiteaResponse:
+    try:
+
+        content = get_file_content(
+            base_url=base_url,
+            access_token=access_token,
+            owner=owner,
+            repo=repo,
+            branch=branch,
+            filepath=filepath
+        ).data["content"]
+
+        cnt = yaml.safe_load(content)
+        cnt_json_str = json.dumps(cnt)
+        cnt_json = json.loads(cnt_json_str)
+
+        if type(values_content) is dict:
+            new_values_json = values_content
+        else: new_values_json = helm_obj_to_json(values_content)
+
+        for key in new_values_json:
+            if new_values_json[key] is None: continue
+            else:
+                if new_values_json[key] != cnt_json[key]:
+                    cnt_json[key] = new_values_json[key]
+        
+        update_file_req = update_file_content(
+            body=gitea_schema.UpdateFile(
+                content=helm_json_to_yaml(cnt_json)
+            ),
+            base_url=base_url,
+            access_token=access_token,
+            owner=owner,
+            repo=repo,
+            branch=branch,
+            filepath=filepath
+        )
+
+
+        return gitea_schema.GiteaResponse(
+            status_code=update_file_req.status_code,
+            data=update_file_req.data
+        )
+    except Exception as e:
+        print(str(e))
+        return gitea_schema.GiteaResponse(
+            status_code=update_file_req.status_code,
+            data=update_file_req.data
+        )
+
+
+
+def helm_obj_to_json(values: gitea_schema.HelmValues):
+    values_json = {
+        "namespace": values.namespace,
+        "cmStartName": values.cm_start_name,
+        "cmSupervisordName": values.cm_supervisord_name,
+        "deploymentName": values.dep_name,
+        "deploymentReplicas": values.replicas,
+        "httpPort": values.http_port,
+        "webrtcPort": values.webrtc_port,
+        "theiaPort": values.theia_port,
+        "rosbridgePort": values.rosbridge_port,
+        "webvizPort": values.webviz_port
+    }
+
+    return values_json
 
 def base64_to_str(base64_str: str):
     return base64.b64decode(base64_str).decode('utf-8')

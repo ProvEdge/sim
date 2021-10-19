@@ -6,7 +6,7 @@ from database.schemas import instance_schema
 
 gitea_server = "https://gitea.provedge.cloud"
 base_url =  gitea_server + "/api/v1"
-access_token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IkZuNXBWWkZFRlVrbFR5Wk5zVkxOdzJ1MDh4Q2lfTFZjdHdHUUtuY0QxclEiLCJ0eXAiOiJKV1QifQ.eyJnbnQiOjUsInR0IjowLCJleHAiOjE2MzQ1OTUyNTQsImlhdCI6MTYzNDU5MTY1NH0.VXkIIHYY9c_Cz0F5uJFBl06RcZtgC14R7B2PRbxNVCZZTWwBLXOv8OcRfOLAPVTfg9IJJ3pkigyujgR-kEj0IflonIbENqzS1EoExYebo0aeypTRpOgo1nJcPyxXTvPuYuTnU9bop3osuzNKBPnybiyexYL0ROw0QgIKrS-kqx217TzJGD7PUxEc_RsFdihy5S4y1x_utyAuWPB8Foymtdku_aqHuCUhLib9Y_rohkFJVVl8ZYG4grXNEcX6qIQvtD2G1UbX0Nt1HOGD9lFSbsax1xBmPi1Qbf1NSSf-9OOgoUao_yKVoJEAJlqjZ1kSe2ZjUVobGIdK_ey3Xm_YxROmqGrVxaZDuG4AmfzzAk6r9FXUIeWHSNZylXgaB_nZpp-UM4Iof2Pbq9xZCwooTyieHNRF684nLEKMUc5-uB5J9wUBUnV1YBa_tUQ11BToMbWtBuataAc6msSgMARQv1Z0i2clJjzRyzG_v8ZplqPhYbtrxUHhpWasH49bs5LEHjjzEymfDoT-972kKad47lY7TNn25lQhZLuWdD2wrXilnrzzV4c84e2HeHFNJxMqYXMF50AqrOIcjWoGldXzx1DcU0VgptEBXrkX4J0ypNoYhaWz7QXkdG9GpI3z26SzxJTTdP1bTP_lGFIBucejHz_s6k1BG0xBIIlnuQjsgt4"
+access_token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IkZuNXBWWkZFRlVrbFR5Wk5zVkxOdzJ1MDh4Q2lfTFZjdHdHUUtuY0QxclEiLCJ0eXAiOiJKV1QifQ.eyJnbnQiOjUsInR0IjowLCJleHAiOjE2MzQ2NDAxOTksImlhdCI6MTYzNDYzNjU5OX0.C9KoMsEIi_eUEZw6l-eJPWEWPfydMAti6RuiwOaw-kaNtQA1zhSu8b4v58VkpZ00TW8GfKUhTxeJu16UehzahzOWeTFPbno00lFXfukU4iKBHfSrFztbBiM49FDJIzrSeIItLgof6TUrrNasjFfSHbTPu_orpkcgppWlWXX32aVXfV8m4tUXcstRiy78fWgHDzA0IrYKMI76KM4d0tpXEFT5IKY2rlAVJfF4NYa6k-frpvy_bsv8ZvklXRDdPYT4FsIpZk4ny9LQWhCif8g09nd4Rbd95mCKSVMgO6TYoLbvmCbgbVvRVJfG2FWtXjmND2cRAkSckpy-ycpk4_imt_kIgYhCNl-EuMfwL4DsemMzjRKQDlQtsD7BbarhEjtX5TSTNME051LXiN5xbhlv7oMngn78AROmFXPwtfEAYcA5RhFHmWkDV2F6PGivWLcfSmJexcV2lll2U1NinzYBSyKBnjr8pw_z2_FUPFK_FDHrsL9oz7dHHUvU0hqEeA8wa0b7sRAaxv5DqI7tILvCF4Q00dgPa6W1NzNNfK7hmzeYPl1xLogTmxY7tF0raW6qB8zQ9RG9rOtRswIeSa_fa-O6jcVyDYxtaj1FREK0KtLVOnbRFbAEXHvUYsyVEO1I4Pq8oxt8aSP9TJFakY8RKJyZYvjILbBcFs_x7prriQk"
 admin_access_token = "065f9f4243bba4c77f45014995fda349c0168f26"
 
 class GiteaResponse(BaseModel):
@@ -53,6 +53,18 @@ class HelmValues(BaseModel):
     theia_port: int = 31003
     rosbridge_port: int = 31004
     webviz_port: int = 31005
+
+class EditHelmValues(BaseModel):
+    namespace: Optional[str]
+    cm_start_name: Optional[str]
+    cm_supervisord_name: Optional[str]
+    dep_name: Optional[str]
+    replicas: Optional[int]
+    http_port: Optional[int]
+    webrtc_port: Optional[int]
+    theia_port: Optional[int]
+    rosbridge_port: Optional[int]
+    webviz_port: Optional[int]
 
 class ArgoConfiguration(BaseModel):
     argo_cluster: str = "https://kubernetes.default.svc"

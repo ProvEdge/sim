@@ -237,7 +237,7 @@ def start_instance(instance_id: int, credentials: platform_schema.StartInstance,
         )
 
 @router.post("/stop-instance/{instance_id}")
-def start_instance(instance_id: int, credentials: platform_schema.StartInstance, db: Session = Depends(get_db)):
+def stop_instance(instance_id: int, credentials: platform_schema.StartInstance, db: Session = Depends(get_db)):
     try:
         # decrease replica count on git
         # sync argo app

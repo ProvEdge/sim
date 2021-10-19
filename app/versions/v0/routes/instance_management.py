@@ -57,3 +57,113 @@ def create_instance(
         )
 
 
+@router.get(
+    path="/refresh/{id}",
+    description="Refresh instance, pull again from Gitea."
+)
+def refresh_instance(
+    id: int,
+    db: Session = Depends(get_db)
+):
+    try:
+
+        refresh_req = instance_management.refresh_instance(
+            instance_id=id,
+            db=db
+        )
+
+        if refresh_req.status_code == 200:
+            return generate_response(
+                "SUCCESS",
+                "Instance is refreshed",
+                refresh_req.data
+            )
+        else:
+            return generate_response(
+                "FAILURE",
+                "Cannot refresh instance",
+                refresh_req.data
+            )
+    except Exception as e:
+        return generate_response(
+            "FAILURE",
+            str(e)
+        )
+
+
+
+@router.post(
+    path="/start/{id}",
+    description="Starts instance, increases replicas from 0 to 1."
+)
+def start_instance(
+    id: int,
+    base_url: str = Header(gitea_schema.base_url), 
+    access_token: str = Header(gitea_schema.access_token),
+    db: Session = Depends(get_db)
+):
+    try:
+
+        start_instance_req = instance_management.start_instance(
+            base_url=base_url,
+            access_token=access_token,
+            instance_id=id,
+            db=db
+        )
+
+        if start_instance_req.status_code == 200:
+            return generate_response(
+                "SUCCESS",
+                "Instance is started",
+                start_instance_req.data
+            )
+        else:
+            return generate_response(
+                "FAILURE",
+                "Cannot",
+                start_instance_req.data
+            )
+    except Exception as e:
+        return generate_response(
+            "FAILURE",
+            str(e)
+        )
+
+
+
+@router.post(
+    path="/stop/{id}",
+    description="Stops instance, decreases replicas from 1 to 0."
+)
+def stop_instance(
+    id: int,
+    base_url: str = Header(gitea_schema.base_url), 
+    access_token: str = Header(gitea_schema.access_token),
+    db: Session = Depends(get_db)
+):
+    try:
+
+        stop_instance_req = instance_management.stop_instance(
+            base_url=base_url,
+            access_token=access_token,
+            instance_id=id,
+            db=db
+        )
+
+        if stop_instance_req.status_code == 200:
+            return generate_response(
+                "SUCCESS",
+                "Instance is stopped",
+                stop_instance_req.data
+            )
+        else:
+            return generate_response(
+                "FAILURE",
+                "Cannot",
+                stop_instance_req.data
+            )
+    except Exception as e:
+        return generate_response(
+            "FAILURE",
+            str(e)
+        )
