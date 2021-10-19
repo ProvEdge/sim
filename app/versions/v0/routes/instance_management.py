@@ -57,6 +57,46 @@ def create_instance(
         )
 
 
+
+@router.delete(
+    path="/delete/{id}",
+    description="Delete instance."
+)
+def delete_instance(
+    id: int,
+    base_url: str = Header(gitea_schema.base_url), 
+    access_token: str = Header(gitea_schema.access_token),
+    db: Session = Depends(get_db)
+):
+    try:
+
+        delete_req = instance_management.delete_instance(
+            base_url=base_url,
+            access_token=access_token,
+            instance_id=id,
+            db=db
+        )
+
+        if delete_req.status_code == 200:
+            return generate_response(
+                "SUCCESS",
+                "Instance is deleted",
+                delete_req.data
+            )
+        else:
+            return generate_response(
+                "FAILURE",
+                "Cannot delete instance",
+                delete_req.data
+            )
+    except Exception as e:
+        return generate_response(
+            "FAILURE",
+            str(e)
+        )
+
+
+
 @router.get(
     path="/refresh/{id}",
     description="Refresh instance, pull again from Gitea."
@@ -92,7 +132,7 @@ def refresh_instance(
 
 
 
-@router.post(
+@router.get(
     path="/start/{id}",
     description="Starts instance, increases replicas from 0 to 1."
 )
@@ -131,7 +171,7 @@ def start_instance(
 
 
 
-@router.post(
+@router.get(
     path="/stop/{id}",
     description="Stops instance, decreases replicas from 1 to 0."
 )

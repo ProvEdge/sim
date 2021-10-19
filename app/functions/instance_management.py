@@ -139,6 +139,93 @@ def create_instance(
             }
         )
 
+def delete_instance(
+    base_url: str,
+    access_token: str, 
+    instance_id: int,
+    db: Session
+) -> InstanceManagementResponse:
+
+    try:
+        instance = instance_crud.get_instance(
+            db=db,
+            id=instance_id
+        )
+
+        user = gitea_rest_crud.get_authenticated_user(
+            base_url=base_url,
+            access_token=access_token
+        ).data
+
+        db_usages = usage_crud.get_usages(
+            db,
+            ins_id=instance_id,
+            is_terminated=False
+        )
+
+
+
+        if len(db_usages) > 0:
+            db_usage = db_usages[0]
+
+            edit_usage_req = usage_crud.edit_usage(
+                db=db,
+                id=db_usage.id,
+                usage=UsageEdit(end_time=datetime.now(), is_terminated=True)
+            )
+        
+        # delete argo app
+
+        url = argocd_schema.argocd_server_url + "/applications/" + instance.argocd_project_name
+        token_res = argocd_rest_crud.get_bearer_token(
+            {
+                "username": "admin",
+                "password": "ncHjjNs7De47HaMm"
+            }
+        )
+        token = token_res.data["token"]
+        auth_header = {
+            "Cookie": "argocd.token=" + token
+        }
+
+        response = requests.delete(url=url, headers=auth_header, verify=False)
+
+        # delete branch
+        delete_branch_req = gitea_rest_crud.delete_branch(
+            base_url=base_url,
+            access_token=access_token,
+            owner=user["username"],
+            repo=instance.values_repository,
+            branch=instance.values_branch
+        )
+
+
+        delete_instance_req = instance_crud.delete_instance(
+            db=db,
+            id=instance.id
+        )
+
+        return InstanceManagementResponse(
+            status_code=200,
+            data={
+                "argo": response.json(),
+                "branch": delete_branch_req.data,
+                "instance": delete_instance_req
+            }
+        )
+        
+
+    except Exception as e:
+        return InstanceManagementResponse(
+            status_code=400,
+            data={
+                "msg": "Problem when deleting instance",
+                "error": str(e)
+            }
+        )
+    
+    
+
 
 def refresh_instance(
     instance_id: int,
