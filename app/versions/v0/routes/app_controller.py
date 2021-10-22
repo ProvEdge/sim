@@ -6,31 +6,10 @@ from typing import Union
 from database.schemas import generic, keycloak_schema
 from app.functions import general_functions, keycloak_auth
 
-from . import platform_instances, groups, users, clusters, robots, instances, usages, bills, pricing_formulas, gitea, instance_management
+from . import groups, users, clusters, robots, instances, usages, bills, pricing_formulas
 
 router = APIRouter()
 
-router.include_router(
-    instance_management.router,
-    prefix="/im",
-    tags=["Instance Management"]
-    #responses={418: {"description": "I'm a teapot"}},
-)
-
-router.include_router(
-    gitea.router,
-    prefix="/gitea",
-    tags=["Gitea"]
-    #responses={418: {"description": "I'm a teapot"}},
-)
-
-router.include_router(
-    platform_instances.router,
-    prefix="/platform/instances",
-    tags=["Instances - Platform Scope"],
-    deprecated=True
-    #responses={418: {"description": "I'm a teapot"}},
-)
 
 router.include_router(
     pricing_formulas.router,

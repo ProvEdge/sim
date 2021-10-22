@@ -11,8 +11,6 @@ class RobotBase(BaseModel):
     gpu_mb: int
     cpu_mb: int
     ram_mb: int
-    base_repo_owner: str
-    base_repo_name: str
 
 class RobotCreate(RobotBase):
     pass
@@ -23,8 +21,6 @@ class RobotEdit(BaseModel):
     gpu_mb: Optional[int]
     cpu_mb: Optional[int]
     ram_mb: Optional[int]
-    base_repo_owner: Optional[str]
-    base_repo_name: Optional[str]
 
 class Robot(RobotBase):
     class Config:

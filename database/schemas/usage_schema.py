@@ -16,16 +16,8 @@ class UsageBase(BaseModel):
     ins_belongs_to_group: bool
     ins_group_id: str
     ins_cluster_id: int
-    # storage_id
     ins_namespace: str
-    #ins_deployment: str
-    #ins_service: str
-    #ins_configmaps: str
     ins_robot_type: str
-    ins_values_repository: str
-    ins_values_branch: str
-    ins_values_path: str
-    ins_argocd_project_name: str
 
 class UsageCreate(BaseModel):
     instance_id: int

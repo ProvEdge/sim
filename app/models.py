@@ -22,18 +22,18 @@ class Cluster(Base):
     )
 
 
-class Storage(Base):
-    __tablename__ = "storages"
+# class Storage(Base):
+#     __tablename__ = "storages"
 
-    id = Column(Integer, primary_key=True, index=True, unique=True)
-    cluster_id = Column(Integer, ForeignKey("clusters.id"), nullable=False)
-    pvc_name = Column(String(100), nullable=False)
-    pv_name = Column(String(100), nullable=False)
+#     id = Column(Integer, primary_key=True, index=True, unique=True)
+#     cluster_id = Column(Integer, ForeignKey("clusters.id"), nullable=False)
+#     pvc_name = Column(String(100), nullable=False)
+#     pv_name = Column(String(100), nullable=False)
     
-    __table_args__ = (
-        UniqueConstraint('cluster_id', 'pvc_name', name="cluster_pvc_uv"),
-        UniqueConstraint('cluster_id', 'pv_name', name="cluster_pv_uv"),
-    )
+#     __table_args__ = (
+#         UniqueConstraint('cluster_id', 'pvc_name', name="cluster_pvc_uv"),
+#         UniqueConstraint('cluster_id', 'pv_name', name="cluster_pv_uv"),
+#     )
 
 class Robot(Base):
     __tablename__ = "robots"
@@ -43,8 +43,6 @@ class Robot(Base):
     gpu_mb = Column(Integer, nullable=True)
     cpu_mb = Column(Integer, nullable=False)
     ram_mb = Column(Integer, nullable=False)
-    base_repo_owner = Column(String, nullable=False)
-    base_repo_name = Column(String, nullable=False)
 
 class Instance(Base):
     __tablename__ = "instances"
@@ -55,21 +53,11 @@ class Instance(Base):
     belongs_to_group = Column(Boolean, nullable=False)
     group_id = Column(String(100), nullable=False) # keycloak foreign key
     cluster_id = Column(Integer, ForeignKey("clusters.id"), nullable=False)
-    #storage_id = Column(Integer, ForeignKey("storages.id"), nullable=False)
     namespace = Column(String(100), nullable=False)
-    #deployment = Column(String(100), nullable=False)
-    #service = Column(String(100), nullable=False)
-    #configmaps = Column(String(200), nullable=False)
     robot_type = Column(String, ForeignKey("robots.type"), nullable=False)
-    values_repository = Column(String, nullable=False)
-    values_branch = Column(String, nullable=False)
-    values_path = Column(String, nullable=False)
-    argocd_project_name = Column(String, nullable=False, unique=True)
     
     __table_args__ = (
-        #UniqueConstraint('cluster_id', 'namespace', 'deployment', name="cluster_ns_dep_uc"),
         UniqueConstraint('user_id', 'name', name="user_id_instance_name_uc"),
-        UniqueConstraint('values_repository', 'values_branch', 'values_path', name="repo_path_uc"),
     )
 
 class Usage(Base):
@@ -87,16 +75,8 @@ class Usage(Base):
     ins_belongs_to_group = Column(Boolean, nullable=False)
     ins_group_id = Column(String(100), nullable=False) # keycloak foreign key
     ins_cluster_id = Column(Integer, nullable=False)
-    #storage_id = Column(Integer, ForeignKey("storages.id"), nullable=False)
     ins_namespace = Column(String(100), nullable=False)
-    #ins_deployment = Column(String(100), nullable=False)
-    #ins_service = Column(String(100), nullable=False)
-    #ins_configmaps = Column(String(100), nullable=False)
     ins_robot_type = Column(String, nullable=False)
-    ins_values_repository = Column(String, nullable=False)
-    ins_values_branch = Column(String, nullable=False)
-    ins_values_path = Column(String, nullable=False)
-    ins_argocd_project_name = Column(String, nullable=False)
 
     __table_args__ = (
         CheckConstraint('start_time < end_time', 'start_end_time_consistency'),

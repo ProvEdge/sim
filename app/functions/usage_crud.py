@@ -43,14 +43,7 @@ def create_usage(db: Session, usage: usage_schema.UsageCreate):
         ins_group_id=db_instance.group_id,
         ins_cluster_id=db_instance.cluster_id,
         ins_namespace=db_instance.namespace,
-        #ins_deployment=db_instance.deployment,
-        #ins_service=db_instance.service,
-        #ins_configmaps=db_instance.configmaps,
         ins_robot_type=db_instance.robot_type,
-        ins_values_repository=db_instance.values_repository,
-        ins_values_branch=db_instance.values_branch,
-        ins_values_path=db_instance.values_path,
-        ins_argocd_project_name=db_instance.argocd_project_name
     )
 
     db.add(db_usage)

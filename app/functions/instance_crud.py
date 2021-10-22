@@ -29,16 +29,8 @@ def create_instance(db: Session, instance: instance_schema.InstanceCreate):
         belongs_to_group=instance.belongs_to_group,
         group_id=instance.group_id,
         cluster_id=instance.cluster_id,
-        # storage_id
         namespace=instance.namespace,
-        #deployment=instance.deployment,
-        #service=instance.service,
-        #configmaps=instance.configmaps,
         robot_type=instance.robot_type,
-        values_repository=instance.values_repository,
-        values_branch=instance.values_branch,
-        values_path=instance.values_path,
-        argocd_project_name=instance.argocd_project_name
     )
     db.add(db_instance)
     db.commit()
