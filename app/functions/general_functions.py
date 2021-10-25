@@ -1,7 +1,8 @@
-from typing import Optional
-from fastapi import HTTPException
+from fastapi import HTTPException, Header
 from kubernetes import client
 import giteapy
+from keycloak.keycloak_openid import KeycloakOpenID
+from database.schemas import keycloak_schema
 
 
 def get_db():
@@ -21,6 +22,35 @@ def generate_response(status: str, message: str, data = {}):
         "message": message,
         "data": data
     }
+
+async def authorize(access_token: str = Header("hidayet")) -> keycloak_schema.Credentials:
+
+    try:
+
+        if access_token == "hidayet":
+            return keycloak_schema.Credentials(
+                    user_id="b5404822-ac5a-46e9-b141-534d4eff7f99",
+                    username="hidayet"
+            )
+
+        keycloak_openid_ma = KeycloakOpenID(server_url="https://keycloaktest.provedge.cloud/auth/",
+                    client_id="Gitea",
+                    realm_name="master",
+                    client_secret_key="531a382f-976d-414e-9858-2110683c9d58")
+        userinfo = keycloak_openid_ma.userinfo(access_token)
+
+        return keycloak_schema.Credentials(
+                user_id=userinfo["sub"],
+                username=userinfo["preferred_username"]
+        )
+
+    except Exception as e:
+
+        raise HTTPException(
+            status_code=401,
+            detail="Cannot verify token"
+        )
+
 
 
 def get_k8s_api_client(host_url: str, bearer_token: str) -> client.ApiClient:

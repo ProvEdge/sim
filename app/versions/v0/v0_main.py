@@ -1,18 +1,24 @@
-from fastapi import APIRouter
+from typing import Sequence
+from fastapi import APIRouter, Depends, Header
+from pydantic import BaseModel
 
 from .routes import app_controller
+from app.functions.general_functions import authorize
+from database.schemas import keycloak_schema
 
 router = APIRouter()
 
 router.include_router(
     app_controller.router,
     prefix="/sim",
+    dependencies=[Depends(authorize)]
     #responses={418: {"description": "I'm a teapot"}},
 )
 
 @router.get("")
-async def v0_root():
+async def v0_root(credentials: keycloak_schema.Credentials = Depends(authorize)):
     return {
         "status": "SUCCES",
-        "message": "API V0 Root"
+        "message": "API V0 Root",
+        "data": credentials.dict()
     }

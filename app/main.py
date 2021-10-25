@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+import time
 
 from .versions.v0 import v0_main
 
@@ -23,6 +24,7 @@ app.include_router(
     prefix="/api/v0",
     #responses={418: {"description": "I'm a teapot"}},
 )
+
 
 
 @app.get("/")

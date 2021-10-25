@@ -11,26 +11,26 @@ from . import groups, users, clusters, robots, instances, usages, bills, pricing
 router = APIRouter()
 
 
-router.include_router(
-    pricing_formulas.router,
-    prefix="/pricing-formulas",
-    tags=["Pricing Formulas"]
-    #responses={418: {"description": "I'm a teapot"}},
-)
+# router.include_router(
+#     pricing_formulas.router,
+#     prefix="/pricing-formulas",
+#     tags=["Pricing Formulas"]
+#     #responses={418: {"description": "I'm a teapot"}},
+# )
 
-router.include_router(
-    bills.router,
-    prefix="/bills",
-    tags=["Bills"]
-    #responses={418: {"description": "I'm a teapot"}},
-)
+# router.include_router(
+#     bills.router,
+#     prefix="/bills",
+#     tags=["Bills"]
+#     #responses={418: {"description": "I'm a teapot"}},
+# )
 
-router.include_router(
-    groups.router,
-    prefix="/groups",
-    tags=["Groups"]
-    #responses={418: {"description": "I'm a teapot"}},
-)
+# router.include_router(
+#     groups.router,
+#     prefix="/groups",
+#     tags=["Groups"]
+#     #responses={418: {"description": "I'm a teapot"}},
+# )
 
 router.include_router(
     users.router,
@@ -39,12 +39,12 @@ router.include_router(
     #responses={418: {"description": "I'm a teapot"}},
 )
 
-router.include_router(
-    clusters.router,
-    prefix="/clusters",
-    tags=["Clusters"]
-    #responses={418: {"description": "I'm a teapot"}},
-)
+# router.include_router(
+#     clusters.router,
+#     prefix="/clusters",
+#     tags=["Clusters"]
+#     #responses={418: {"description": "I'm a teapot"}},
+# )
 
 router.include_router(
     robots.router,
