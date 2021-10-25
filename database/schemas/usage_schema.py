@@ -13,9 +13,9 @@ class UsageBase(BaseModel):
     ins_id: int
     ins_name: str
     ins_user_id: str
-    ins_belongs_to_group: bool
-    ins_group_id: str
-    ins_cluster_id: int
+    # ins_belongs_to_group: bool
+    # ins_group_id: str
+    # ins_cluster_id: int
     ins_namespace: str
     ins_robot_type: str
 

@@ -52,7 +52,7 @@ class Instance(Base):
     user_id = Column(String(100), nullable=False) # keycloak foreign key
     # belongs_to_group = Column(Boolean, nullable=False)
     # group_id = Column(String(100), nullable=False) # keycloak foreign key
-    cluster_id = Column(Integer, ForeignKey("clusters.id"), nullable=False)
+    # cluster_id = Column(Integer, ForeignKey("clusters.id"), nullable=False)
     namespace = Column(String(100), nullable=False)
     robot_type = Column(String, ForeignKey("robots.type"), nullable=False)
     
@@ -74,7 +74,7 @@ class Usage(Base):
     ins_user_id = Column(String(100), nullable=False) # keycloak foreign key
     # ins_belongs_to_group = Column(Boolean, nullable=False)
     # ins_group_id = Column(String(100), nullable=False) # keycloak foreign key
-    ins_cluster_id = Column(Integer, nullable=False)
+    # ins_cluster_id = Column(Integer, nullable=False)
     ins_namespace = Column(String(100), nullable=False)
     ins_robot_type = Column(String, nullable=False)
 

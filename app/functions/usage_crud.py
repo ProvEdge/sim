@@ -39,9 +39,9 @@ def create_usage(db: Session, usage: usage_schema.UsageCreate):
         ins_id=db_instance.id,
         ins_name=db_instance.name,
         ins_user_id=db_instance.user_id,
-        ins_belongs_to_group=db_instance.belongs_to_group,
-        ins_group_id=db_instance.group_id,
-        ins_cluster_id=db_instance.cluster_id,
+        # ins_belongs_to_group=db_instance.belongs_to_group,
+        # ins_group_id=db_instance.group_id,
+        # ins_cluster_id=db_instance.cluster_id,
         ins_namespace=db_instance.namespace,
         ins_robot_type=db_instance.robot_type,
     )
