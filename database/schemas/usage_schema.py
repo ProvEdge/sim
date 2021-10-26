@@ -23,7 +23,7 @@ class UsageCreate(BaseModel):
     instance_id: int
 
 class UsageEdit(BaseModel):
-    end_time: Optional[datetime]
+    end_time: Optional[datetime] = datetime.now()
     is_terminated: Optional[bool]
 
 class Usage(UsageBase):
