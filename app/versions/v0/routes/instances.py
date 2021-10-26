@@ -17,7 +17,6 @@ router = APIRouter()
 @router.get("", response_model=Union[instance_schema.ListInstancesResponse, generic.ResponseBase])
 def read_instances(
     credentials: keycloak_schema.Credentials = Depends(authorize),
-    user_id: Optional[str] = "", 
     belongs_to_group: Optional[bool] = False, 
     group_id: Optional[str] = "", 
     cluster_id: Optional[int] = 0, 
@@ -27,16 +26,34 @@ def read_instances(
     db: Session = Depends(get_db)
 ):
     try:
-        instances = instance_crud.get_instances(db, user_id=credentials.user_id, belongs_to_group=belongs_to_group, group_id=group_id, cluster_id=cluster_id, robot_type=robot_type, skip=skip, limit=limit)
+        instances = instance_crud.get_instances(
+            db=db, 
+            user_id=credentials.user_id, 
+            belongs_to_group=belongs_to_group, 
+            group_id=group_id, 
+            cluster_id=cluster_id, 
+            robot_type=robot_type, 
+            skip=skip, 
+            limit=limit
+        )
+        
         return generate_response("SUCCESS", "Instances are returned", instances)
     except Exception as e:
         return generate_response(status="FAILURE", message=str(e))
 
 
 @router.get("/{id}", response_model=Union[instance_schema.GetInstanceResponse, generic.ResponseBase])
-def read_instance_by_id(id: int, db: Session = Depends(get_db)):
+def read_instance_by_id(
+    id: int, 
+    credentials: keycloak_schema.Credentials = Depends(authorize),
+    db: Session = Depends(get_db)
+):
     try:
-        db_instance = instance_crud.get_instance(db, id=id)
+        db_instance = instance_crud.get_instance(
+            db, 
+            id=id,
+            credentials=credentials
+        )
         if db_instance is None:
             return generate_response(
                 "FAILURE",
@@ -55,9 +72,17 @@ def read_instance_by_id(id: int, db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=Union[instance_schema.GetInstanceResponse, generic.ResponseBase])
-def create_instance(instance: instance_schema.InstanceCreate, db: Session = Depends(get_db)):
+def create_instance(
+    instance: instance_schema.InstanceCreate,
+    credentials: keycloak_schema.Credentials = Depends(authorize),
+    db: Session = Depends(get_db)
+):
     try:
-        ins = instance_crud.create_instance(db=db, instance=instance)
+        ins = instance_crud.create_instance(
+            db=db, 
+            instance=instance,
+            credentials=credentials
+        )
 
         return generate_response(
             "SUCCESS",
@@ -72,9 +97,18 @@ def create_instance(instance: instance_schema.InstanceCreate, db: Session = Depe
 
 
 @router.patch("/{id}", response_model=Union[instance_schema.GetInstanceResponse, generic.ResponseBase])
-def edit_instance(instance: instance_schema.InstanceEdit, id: int, db: Session = Depends(get_db)):
+def edit_instance(
+    instance: instance_schema.InstanceEdit, 
+    id: int, 
+    credentials: keycloak_schema.Credentials = Depends(authorize),
+    db: Session = Depends(get_db)
+):
     try:
-        db_instance = instance_crud.get_instance(db, id=id)
+        db_instance = instance_crud.get_instance(
+            db=db, 
+            id=id,
+            credentials=credentials
+        )
 
         if not db_instance:
             return generate_response(
@@ -82,7 +116,12 @@ def edit_instance(instance: instance_schema.InstanceEdit, id: int, db: Session =
                 "This instance does not exist"
             )
 
-        ins = instance_crud.edit_instance(db=db, instance=instance, id=id)
+        ins = instance_crud.edit_instance(
+            db=db, 
+            instance=instance, 
+            id=id,
+            credentials=credentials
+        )
 
         return generate_response(
             "SUCCESS",
@@ -96,16 +135,28 @@ def edit_instance(instance: instance_schema.InstanceEdit, id: int, db: Session =
         )
 
 @router.delete("/{id}", response_model=Union[instance_schema.GetInstanceResponse, generic.ResponseBase])
-def delete_instance(id: int, db: Session = Depends(get_db)):
+def delete_instance(
+    id: int, 
+    db: Session = Depends(get_db),
+    credentials: keycloak_schema.Credentials = Depends(authorize)
+):
     try:
-        db_instance = instance_crud.get_instance(db, id=id)
+        db_instance = instance_crud.get_instance(
+            db, 
+            id=id,
+            credentials=credentials
+        )
         if db_instance is None:
             return generate_response(
                 "FAILURE",
                 "Instance not found"
             )
 
-        delete_exec = instance_crud.delete_instance(db, id=id)
+        delete_exec = instance_crud.delete_instance(
+            db, 
+            id=id,
+            credentials=credentials
+        )
         return generate_response(
             "SUCCESS",
             "Instance is deleted",

@@ -13,11 +13,17 @@ class InstanceBase(BaseModel):
     robot_type: str = "jackal"
 
 class InstanceCreate(InstanceBase):
-    pass
+    name: str
+    # user_id: str
+    # belongs_to_group: bool
+    # group_id: str
+    # cluster_id: int
+    namespace: str = "tunahan"
+    robot_type: str = "jackal"
 
 class InstanceEdit(BaseModel):
     name: Optional[str]
-    user_id: Optional[str]
+    # user_id: Optional[str]
     # belongs_to_group: Optional[bool]
     # group_id: Optional[str]
     # cluster_id: Optional[int]
