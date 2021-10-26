@@ -13,3 +13,6 @@ class KCResponse():
 class Credentials(BaseModel):
     user_id: str
     username: str
+
+class Identity(Credentials):
+    id_token: str
