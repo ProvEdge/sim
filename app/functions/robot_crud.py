@@ -19,7 +19,8 @@ def create_robot(db: Session, robot: robot_schema.RobotCreate):
         has_gpu=robot.has_gpu,
         gpu_mb=robot.gpu_mb,
         cpu_mb=robot.cpu_mb,
-        ram_mb=robot.ram_mb
+        ram_mb=robot.ram_mb,
+        helm_values=robot.helm_values
     )
     db.add(db_robot)
     db.commit()

@@ -11,6 +11,7 @@ class RobotBase(BaseModel):
     gpu_mb: int
     cpu_mb: int
     ram_mb: int
+    helm_values: str
 
 class RobotCreate(RobotBase):
     pass
@@ -21,6 +22,7 @@ class RobotEdit(BaseModel):
     gpu_mb: Optional[int]
     cpu_mb: Optional[int]
     ram_mb: Optional[int]
+    helm_values: Optional[str]
 
 class Robot(RobotBase):
     class Config:

@@ -18,6 +18,7 @@ class UsageBase(BaseModel):
     # ins_cluster_id: int
     ins_namespace: str
     ins_robot_type: str
+    ins_helm_values: str
 
 class UsageCreate(BaseModel):
     instance_id: int

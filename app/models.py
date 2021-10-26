@@ -43,6 +43,7 @@ class Robot(Base):
     gpu_mb = Column(Integer, nullable=True)
     cpu_mb = Column(Integer, nullable=False)
     ram_mb = Column(Integer, nullable=False)
+    helm_values = Column(String, nullable=False)
 
 class Instance(Base):
     __tablename__ = "instances"
@@ -55,6 +56,7 @@ class Instance(Base):
     # cluster_id = Column(Integer, ForeignKey("clusters.id"), nullable=False)
     namespace = Column(String(100), nullable=False)
     robot_type = Column(String, ForeignKey("robots.type"), nullable=False)
+    helm_values = Column(String, nullable=False)
     
     __table_args__ = (
         UniqueConstraint('user_id', 'name', name="user_id_instance_name_uc"),
@@ -77,6 +79,7 @@ class Usage(Base):
     # ins_cluster_id = Column(Integer, nullable=False)
     ins_namespace = Column(String(100), nullable=False)
     ins_robot_type = Column(String, nullable=False)
+    ins_helm_values = Column(String, nullable=False)
 
     __table_args__ = (
         CheckConstraint('start_time <= end_time', 'start_end_time_consistency'),
