@@ -23,7 +23,7 @@ def generate_response(status: str, message: str, data = {}):
         "data": data
     }
 
-async def authorize(access_token: str = Header("hidayet")) -> keycloak_schema.Credentials:
+async def authorize(access_token: str = Header("tunahan")) -> keycloak_schema.Credentials:
 
     try:
 
@@ -55,7 +55,6 @@ async def authorize(access_token: str = Header("hidayet")) -> keycloak_schema.Cr
 id_token = "eyJhbGciOiJSUzI1NiIsImtpZCI6InJ3VlZZcXB0VDZLc3VQSHVqTVo5VFVqc2FWdmJ5M1cxXzNBR1k2LVRGTVEifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6Imt1YmVhcHBzLW9wZXJhdG9yLXRva2VuLWNoanR0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6Imt1YmVhcHBzLW9wZXJhdG9yIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiMWY3ODRkOGEtZjk1MS00ZjZlLWFlN2YtNDQ0YWIzMWQxZjM2Iiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OmRlZmF1bHQ6a3ViZWFwcHMtb3BlcmF0b3IifQ.BwaMAefJXO50Z5h7HxN_YimqdJ4s6ckf1SvUoWxWH8lmu35ch8Y9Q9SLQ2SsFGGI-eKUtmNt3G5OiwMswSYLKBk5QvE5thwI-Sxf8IM5iuNWLk3GDcIj8gO5rObz1Gx50u2ZPgDGQ9O6G1fonUMScrQDGgWtkaykGqSwEj_qEyoYsZI7Ix0XuYHCfECiMxdNAnMaw07QQYZnzXpZffoVIbFxuVIM1i6cQea4COY-9R61KQ5YtQ4UPbBSP6y0j9bHUwJs59X60cV8s5kHZUZfbi7eYfGftctUkUjR1tgPnr7w4-RtVnHV17MiiLIPeqR1w_YO6RJyD3N9F3i4kCxCng"
 
 async def match_identity(id_token: str = Header(id_token), credentials: keycloak_schema.Credentials = Depends(authorize)) -> keycloak_schema.Identity:
-
     try:
 
         return keycloak_schema.Identity(
@@ -65,7 +64,6 @@ async def match_identity(id_token: str = Header(id_token), credentials: keycloak
         )
 
     except Exception as e:
-
         raise HTTPException(
             status_code=401,
             detail="Cannot verify token - identity"

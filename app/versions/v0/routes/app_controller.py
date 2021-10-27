@@ -6,10 +6,16 @@ from typing import Union
 from database.schemas import generic, keycloak_schema
 from app.functions import general_functions, keycloak_auth
 
-from . import groups, users, clusters, robots, instances, usages, bills, pricing_formulas
+from . import groups, users, clusters, robots, instances, usages, kubeapps, bills, pricing_formulas
 
 router = APIRouter()
 
+router.include_router(
+    kubeapps.router,
+    prefix="/kubeapps",
+    tags=["Kubeapps"]
+    #responses={418: {"description": "I'm a teapot"}},
+)
 
 # router.include_router(
 #     pricing_formulas.router,
