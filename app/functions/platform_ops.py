@@ -97,6 +97,62 @@ def create_instance(
             data={}
         )
 
+def delete_instance(
+    identity: keycloak_schema.Identity,
+    name: str,
+    db: Session
+) -> PlatformResponse:
+
+    try:
+        instance_db = instance_crud.get_instance_by_name(
+            db=db,
+            name=name,
+            credentials=keycloak_schema.Credentials(
+                username=identity.username,
+                user_id=identity.user_id
+            )
+        )
+
+        delete_kubeapps_release_req = kubeapps_rest_crud.delete_release(
+            id_token=identity.id_token,
+            namespace=identity.username,
+            release=instance_db.release_name
+        )
+
+        if delete_kubeapps_release_req.status_code == 200:
+            delete_instance_req = instance_crud.delete_instance(
+                db=db,
+                id=instance_db.id,
+                credentials=keycloak_schema.Credentials(
+                    username=identity.username,
+                    user_id=identity.user_id
+                )
+            )
+
+            return PlatformResponse(
+                status_code=200,
+                message="Instance is being deleted",
+                data={
+                    "instance": delete_instance_req,
+                    "kubeapps": delete_kubeapps_release_req.data
+                }
+            )
+
+        else: 
+            return PlatformResponse(
+                status_code=400,
+                message="Cannot delete instance",
+                data=delete_kubeapps_release_req.data
+            )
+    except Exception as e:
+        return PlatformResponse(
+            status_code=400,
+            message=str(e),
+            data={}
+        )
+
+    
+
     
 # replace it with smarter helm value picker !
 def manipulate_values(helm_values: str, identity: keycloak_schema.Identity):

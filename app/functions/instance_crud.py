@@ -27,6 +27,17 @@ def get_instance(
         models.Instance.user_id == credentials.user_id
     ).first()
 
+
+def get_instance_by_name(
+    db: Session, 
+    name: str,
+    credentials: keycloak_schema.Credentials,
+):
+    return db.query(models.Instance).filter(
+        models.Instance.name == name,
+        models.Instance.user_id == credentials.user_id
+    ).first()
+
 # def get_clusters_by_group_id(db: Session, group_id: str):
 #     return db.query(models.Cluster).filter(models.Cluster.group_id == group_id).all()
 
@@ -75,7 +86,11 @@ def delete_instance(
     id: int,
     credentials: keycloak_schema.Credentials
 ):
-    db_instance = get_instance(db, id)
+    db_instance = get_instance(
+        db=db, 
+        id=id,
+        credentials=credentials
+        )
     query_exec = db.query(models.Instance).filter(
         models.Instance.id == id,
         models.Instance.user_id == credentials.user_id

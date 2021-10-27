@@ -70,3 +70,34 @@ def create_instance(
             status="FAILURE", 
             message=str(e)
         )
+
+@router.delete("/delete-instance/{instance}")
+def delete_instance(
+    instance: str,
+    identity: keycloak_schema.Identity = Depends(match_identity),
+    db: Session = Depends(get_db)
+):
+    try:
+        delete_instance_req = platform_ops.delete_instance(
+            identity=identity,
+            name=instance,
+            db=db
+        )
+
+        if delete_instance_req.status_code == 200:
+            return generate_response(
+                "SUCCESS", 
+                delete_instance_req.message,
+                delete_instance_req.data
+            )
+        return generate_response(
+            "FAILURE", 
+            delete_instance_req.message,
+            delete_instance_req.data
+        )
+
+    except Exception as e:
+        return generate_response(
+            status="FAILURE", 
+            message=str(e)
+        )

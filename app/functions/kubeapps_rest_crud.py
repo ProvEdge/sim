@@ -104,11 +104,10 @@ def delete_release(
         headers=prepare_auth_header(id_token)
     )
     status_code = response.status_code
-    data = response.json()
 
     return KubeappsResponse(
         status_code=status_code,
-        data=data
+        data={}
     )
     
 
