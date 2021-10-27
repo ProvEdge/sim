@@ -3,9 +3,16 @@ from fastapi import APIRouter
 
 from typing import Union
 
-from . import groups, users, clusters, robots, instances, usages, kubeapps, bills, pricing_formulas
+from . import users, robots, instances, usages, kubeapps, platform # bills, pricing_formulas, clusters, groups
 
 router = APIRouter()
+
+router.include_router(
+    platform.router,
+    prefix="/platform",
+    tags=["Platform"]
+    #responses={418: {"description": "I'm a teapot"}},
+)
 
 router.include_router(
     kubeapps.router,

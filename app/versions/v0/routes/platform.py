@@ -1,23 +1,68 @@
 
 from fastapi import Depends, APIRouter
+from requests.sessions import Session
 
-from database.schemas import keycloak_schema, kubeapps_schema
+from database.schemas import keycloak_schema, kubeapps_schema, platform_schema
 
-from app.functions import kubeapps_rest_crud
-from app.functions.general_functions import generate_response, match_identity
+from app.functions import platform_ops
+from app.functions.general_functions import generate_response, get_db, match_identity
 
 router = APIRouter()
 
-@router.get("/releases")
-def get_releases(
+@router.get("/list-instances")
+def list_instances(
     identity: keycloak_schema.Identity = Depends(match_identity)
 ):
     try:
-       
+        
+        list_instances_req = platform_ops.list_instances(
+            identity=identity
+        )
 
+        if list_instances_req.status_code == 200:
+            return generate_response(
+                "SUCCESS", 
+                list_instances_req.message,
+                list_instances_req.data
+            )
         return generate_response(
-            "SUCCESS", 
-            ""
+            "FAILURE", 
+            list_instances_req.message,
+            list_instances_req.data
+        )
+
+    except Exception as e:
+        return generate_response(
+            status="FAILURE", 
+            message=str(e)
+        )
+
+
+@router.post("/create-instance")
+def create_instance(
+    instance: platform_schema.CreateInstance,
+    identity: keycloak_schema.Identity = Depends(match_identity),
+    db: Session = Depends(get_db)
+):
+    try:
+        
+        create_instance_req = platform_ops.create_instance(
+            identity=identity,
+            name=instance.name,
+            robot_type=instance.robot_type,
+            db=db
+        )
+
+        if create_instance_req.status_code == 200:
+            return generate_response(
+                "SUCCESS", 
+                create_instance_req.message,
+                create_instance_req.data
+            )
+        return generate_response(
+            "FAILURE", 
+            create_instance_req.message,
+            create_instance_req.data
         )
 
     except Exception as e:

@@ -14,7 +14,7 @@ class InstanceBase(BaseModel):
     release_name: str
     helm_values: str = ""
 
-class InstanceCreate(InstanceBase):
+class InstanceCreate(BaseModel):
     name: str
     # user_id: str
     # belongs_to_group: bool
