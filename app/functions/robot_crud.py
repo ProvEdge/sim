@@ -20,6 +20,10 @@ def create_robot(db: Session, robot: robot_schema.RobotCreate):
         gpu_mb=robot.gpu_mb,
         cpu_mb=robot.cpu_mb,
         ram_mb=robot.ram_mb,
+        app_repository=robot.app_repository,
+        app_repository_namespace=robot.app_repository_namespace,
+        chart_name=robot.chart_name,
+        chart_version=robot.chart_version,
         helm_values=robot.helm_values
     )
     db.add(db_robot)

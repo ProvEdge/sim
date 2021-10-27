@@ -11,6 +11,10 @@ class RobotBase(BaseModel):
     gpu_mb: int
     cpu_mb: int
     ram_mb: int
+    app_repository: str
+    app_repository_namespace: str
+    chart_name: str
+    chart_version: str
     helm_values: str
 
 class RobotCreate(RobotBase):
@@ -22,6 +26,10 @@ class RobotEdit(BaseModel):
     gpu_mb: Optional[int]
     cpu_mb: Optional[int]
     ram_mb: Optional[int]
+    app_repository: Optional[str]
+    app_repository_namespace: Optional[str]
+    chart_name: Optional[str]
+    chart_version: Optional[str]
     helm_values: Optional[str]
 
 class Robot(RobotBase):

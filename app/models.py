@@ -43,6 +43,10 @@ class Robot(Base):
     gpu_mb = Column(Integer, nullable=True)
     cpu_mb = Column(Integer, nullable=False)
     ram_mb = Column(Integer, nullable=False)
+    app_repository = Column(String, nullable=False)
+    app_repository_namespace = Column(String, nullable=False)
+    chart_name = Column(String, nullable=False)
+    chart_version = Column(String, nullable=False)
     helm_values = Column(String, nullable=False)
 
 class Instance(Base):
