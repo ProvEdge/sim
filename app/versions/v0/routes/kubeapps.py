@@ -93,7 +93,7 @@ def get_release(
             "Cannot get release",
             get_release_req.data
         )
-        
+
     except Exception as e:
         return generate_response(
             status="FAILURE", 
@@ -114,11 +114,20 @@ def create_release(
             namespace=namespace,
             release=release
         )
+
+        if create_release_req.status_code == 200:
+            return generate_response(
+                "SUCCESS", 
+                "Release is created", 
+                create_release_req.data
+            )
+
         return generate_response(
-            "SUCCESS", 
-            "Release is created", 
+            "FAILURE", 
+            "Cannot create release",
             create_release_req.data
         )
+
     except Exception as e:
         return generate_response(
             status="FAILURE", 
@@ -133,19 +142,59 @@ def delete_release(
     identity: keycloak_schema.Identity = Depends(match_identity)
 ):
     try:
-        releases = kubeapps_rest_crud.delete_release(
+        delete_release_req = kubeapps_rest_crud.delete_release(
             id_token=identity.id_token,
             namespace=namespace,
             release=release
         )
 
-        print(releases.status_code)
+        if delete_release_req.status_code == 200:
+            return generate_response(
+                "SUCCESS", 
+                "Release is deleted", 
+                delete_release_req.data
+            )
 
         return generate_response(
-            "SUCCESS", 
-            "Release is deleted", 
-            releases.data
+            "FAILURE", 
+            "Cannot delete release",
+            delete_release_req.data
         )
+
+    except Exception as e:
+        return generate_response(
+            status="FAILURE", 
+            message=str(e)
+        )
+
+@router.put("/releases/{namespace}/{release_name}")
+def update_release(
+    namespace: str,
+    release_name: str,
+    release: kubeapps_schema.UpdateRelease,
+    identity: keycloak_schema.Identity = Depends(match_identity)
+):
+    try:
+        update_release_req = kubeapps_rest_crud.update_release(
+            id_token=identity.id_token,
+            namespace=namespace,
+            release_name=release_name,
+            release=release
+        )
+
+        if update_release_req.status_code == 200:
+            return generate_response(
+                "SUCCESS", 
+                "Release is updated", 
+                update_release_req.data
+            )
+
+        return generate_response(
+            "FAILURE", 
+            "Cannot update release",
+            update_release_req.data
+        )
+        
     except Exception as e:
         return generate_response(
             status="FAILURE", 

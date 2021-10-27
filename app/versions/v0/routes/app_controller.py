@@ -3,9 +3,6 @@ from fastapi import APIRouter
 
 from typing import Union
 
-from database.schemas import generic, keycloak_schema
-from app.functions import general_functions, keycloak_auth
-
 from . import groups, users, clusters, robots, instances, usages, kubeapps, bills, pricing_formulas
 
 router = APIRouter()
@@ -73,11 +70,11 @@ router.include_router(
     #responses={418: {"description": "I'm a teapot"}},
 )
 
-@router.get("/get-keycloak-admin-credentials", response_model=Union[keycloak_schema.AdminAccessCredentials, generic.ResponseBase])
-def get_keycloak_admin_credentials():
-    try:
-        creds = keycloak_auth.get_admin_credentials()
-        return creds
-    except Exception as e:
-        return general_functions.generate_response(status="FAILURE", message=str(e))
+# @router.get("/get-keycloak-admin-credentials", response_model=Union[keycloak_schema.AdminAccessCredentials, generic.ResponseBase])
+# def get_keycloak_admin_credentials():
+#     try:
+#         creds = keycloak_auth.get_admin_credentials()
+#         return creds
+#     except Exception as e:
+#         return general_functions.generate_response(status="FAILURE", message=str(e))
 
