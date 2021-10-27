@@ -122,10 +122,13 @@ def update_release(
     route = "/kubeops/v1/clusters/default/namespaces/" + namespace + "/releases/" + release_name
     url = kubeapps_server_url + route
 
-    response = requests.post(
+    release_dict = release.dict()
+    release_proper_dict = {k: v for k, v in release_dict.items() if v is not None}
+
+    response = requests.put(
         url=url, 
         headers=prepare_auth_header(id_token),
-        json=release.dict()
+        json=release_proper_dict
     )
 
     status_code = response.status_code

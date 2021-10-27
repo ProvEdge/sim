@@ -20,12 +20,11 @@ class CreateRelease(BaseModel):
     chartName: str
     releaseName: str
     version: str
-    values: str
+    values: str = "namespace: instances\ncmStartName: jackal-start-2\ncmSupervisordName: jackal-supervisord-2\ndeploymentName: jackal-2\ndeploymentReplicas: 1\nhttpPort: 31006\nwebrtcPort: 31007\ntheiaPort: 31008\nrosbridgePort: 31009\nwebvizPort: 31010"
 
 class UpdateRelease(BaseModel):
-    appRepositoryResourceName: Optional[str]
-    appRepositoryResourceNamespace: Optional[str]
-    chartName: Optional[str]
-    releaseName: Optional[str]
+    appRepositoryResourceName: str
+    appRepositoryResourceNamespace: str
+    chartName: str
     version: Optional[str]
-    values: Optional[str] = "namespace: instances\ncmStartName: jackal-start-2\ncmSupervisordName: jackal-supervisord-2\ndeploymentName: jackal-2\ndeploymentReplicas: 1\nhttpPort: 31006\nwebrtcPort: 31007\ntheiaPort: 31008\nrosbridgePort: 31009\nwebvizPort: 31010"
+    values: Optional[str]
