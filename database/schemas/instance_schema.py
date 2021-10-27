@@ -11,6 +11,7 @@ class InstanceBase(BaseModel):
     # cluster_id: int
     namespace: str = "tunahan"
     robot_type: str = "jackal"
+    release_name: str
     helm_values: str = ""
 
 class InstanceCreate(InstanceBase):
@@ -21,6 +22,7 @@ class InstanceCreate(InstanceBase):
     # cluster_id: int
     namespace: str = "tunahan"
     robot_type: str = "jackal"
+    release_name: str
     helm_values: str = ""
 
 class InstanceEdit(BaseModel):
@@ -31,6 +33,7 @@ class InstanceEdit(BaseModel):
     # cluster_id: Optional[int]
     namespace: Optional[str]
     robot_type: Optional[str]
+    release_name: Optional[str]
     helm_values: Optional[str]
 
 class Instance(InstanceBase):

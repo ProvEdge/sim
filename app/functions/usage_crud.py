@@ -83,6 +83,7 @@ def create_usage(
         # ins_cluster_id=db_instance.cluster_id,
         ins_namespace=db_instance.namespace,
         ins_robot_type=db_instance.robot_type,
+        ins_release_name=db_instance.release_name,
         ins_helm_values=db_instance.helm_values
     )
 

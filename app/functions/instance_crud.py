@@ -43,6 +43,7 @@ def create_instance(
         # cluster_id=instance.cluster_id,
         namespace=instance.namespace,
         robot_type=instance.robot_type,
+        release_name=instance.release_name,
         helm_values=instance.helm_values
     )
     db.add(db_instance)

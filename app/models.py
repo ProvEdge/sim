@@ -60,6 +60,7 @@ class Instance(Base):
     # cluster_id = Column(Integer, ForeignKey("clusters.id"), nullable=False)
     namespace = Column(String(100), nullable=False)
     robot_type = Column(String, ForeignKey("robots.type"), nullable=False)
+    release_name = Column(String, nullable=False)
     helm_values = Column(String, nullable=False)
     
     __table_args__ = (
@@ -83,6 +84,7 @@ class Usage(Base):
     # ins_cluster_id = Column(Integer, nullable=False)
     ins_namespace = Column(String(100), nullable=False)
     ins_robot_type = Column(String, nullable=False)
+    ins_release_name = Column(String, nullable=False)
     ins_helm_values = Column(String, nullable=False)
 
     __table_args__ = (
