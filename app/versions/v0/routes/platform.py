@@ -4,7 +4,7 @@ from requests.sessions import Session
 
 from database.schemas import keycloak_schema, kubeapps_schema, platform_schema
 
-from app.functions import platform_ops
+from app.functions import instance_crud, platform_ops
 from app.functions.general_functions import generate_response, get_db, match_identity
 
 router = APIRouter()
@@ -94,6 +94,44 @@ def delete_instance(
             "FAILURE", 
             delete_instance_req.message,
             delete_instance_req.data
+        )
+
+    except Exception as e:
+        return generate_response(
+            status="FAILURE", 
+            message=str(e)
+        )
+
+
+@router.post("/testing/{instance_id}")
+def testing(
+    instance_id: int,
+    json_values: dict,
+    identity: keycloak_schema.Identity = Depends(match_identity),
+    db: Session = Depends(get_db)
+):
+    try:
+        db_instance = instance_crud.get_instance(
+            db=db,
+            id=instance_id,
+            credentials=keycloak_schema.Credentials(
+                username=identity.username,
+                user_id=identity.user_id
+            )
+        )
+
+        x = platform_ops.generate_edited_yaml(
+            json_values=json_values,
+            instance=db_instance,
+            db=db
+        )
+
+        print(x)
+
+
+        return generate_response(
+            "FAILURE", 
+            ""
         )
 
     except Exception as e:
