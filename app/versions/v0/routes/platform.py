@@ -102,6 +102,39 @@ def delete_instance(
             message=str(e)
         )
 
+@router.put("/update-instance/{instance}")
+def update_instance(
+    instance: str,
+    values: dict, # define format
+    identity: keycloak_schema.Identity = Depends(match_identity),
+    db: Session = Depends(get_db)
+):
+    try:
+        update_instance_req = platform_ops.update_instance(
+            name=instance,
+            json_values=values,
+            identity=identity,
+            db=db
+        )
+
+        if update_instance_req.status_code == 200:
+            return generate_response(
+                "SUCCESS", 
+                update_instance_req.message,
+                update_instance_req.data
+            )
+        return generate_response(
+            "FAILURE", 
+            update_instance_req.message,
+            update_instance_req.data
+        )
+
+    except Exception as e:
+        return generate_response(
+            status="FAILURE", 
+            message=str(e)
+        )
+
 
 @router.post("/testing/{instance_id}")
 def testing(

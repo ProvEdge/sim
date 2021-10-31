@@ -78,7 +78,11 @@ def edit_instance(
     ).update(attributes)
 
     db.commit()
-    db_instance = get_instance(db, id)
+    db_instance = get_instance(
+        db=db, 
+        id=id,
+        credentials=credentials
+        )
     return db_instance
 
 def delete_instance(
