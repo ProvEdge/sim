@@ -2,6 +2,7 @@ from fastapi import HTTPException, Header, Depends
 from kubernetes import client
 import giteapy
 from keycloak.keycloak_openid import KeycloakOpenID
+from minio import Minio
 from database.schemas import keycloak_schema
 
 
@@ -69,7 +70,13 @@ async def match_identity(id_token: str = Header(id_token), credentials: keycloak
             detail="Cannot verify token - identity"
         )
 
-
+def get_minio_client(identity: keycloak_schema.Identity) -> Minio:
+    return Minio(
+        "23.88.62.179:32131",
+        access_key="admin",
+        secret_key="B0PC6F2qgxmDnQxMtM9wlj4OqmuztBY0FJ1wTM8T",
+        secure=False
+    )
 
 def get_k8s_api_client(host_url: str, bearer_token: str) -> client.ApiClient:
     if bearer_token == "admin": # should be admin token

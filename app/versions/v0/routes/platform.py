@@ -5,7 +5,7 @@ from requests.sessions import Session
 from database.schemas import keycloak_schema, kubeapps_schema, platform_schema
 
 from app.functions import instance_crud, platform_ops
-from app.functions.general_functions import generate_response, get_db, match_identity
+from app.functions.general_functions import generate_response, get_db, get_minio_client, match_identity
 
 router = APIRouter()
 
@@ -204,3 +204,40 @@ def stop_instance(
             status="FAILURE", 
             message=str(e)
         )
+
+
+# @router.get("/minio-test")
+# def minio_test(
+#     identity: keycloak_schema.Identity = Depends(match_identity)
+# ):
+#     try:
+#         import io
+#         client = get_minio_client(
+#             identity=identity
+#         )
+
+#         b = client.list_buckets()
+        
+#         xstr = "hello"
+#         client.put_object(
+#             bucket_name="second",
+#             object_name="x.yaml",
+#             data=io.BytesIO(bytes(xstr, 'utf-8')),
+#             length=len(xstr),
+#             content_type="application/x-yaml"
+#         )
+
+#         content = client.get_object("second", "x.yaml")
+        
+#         return generate_response(
+#             "FAILURE", 
+#             "musi",
+#             content
+#         )
+
+#     except Exception as e:
+#         return generate_response(
+#             status="FAILURE", 
+#             message=str(e)
+#         )
+

@@ -1,7 +1,7 @@
-import yaml, json
-from minio import Minio
+import yaml, json, io
 
 from sqlalchemy.orm.session import Session
+from app.functions.general_functions import get_minio_client
 from database.schemas import instance_schema, kubeapps_schema, platform_schema, keycloak_schema
 from database.schemas.platform_schema import PlatformResponse
 
@@ -61,6 +61,7 @@ def create_instance(
         )
 
         if create_kubeapps_release_req.status_code == 200:
+
             create_instance_req = instance_crud.create_instance(
                 db=db,
                 instance=instance_schema.InstanceCreate(
@@ -79,13 +80,35 @@ def create_instance(
                 )
             )
 
+            minio_client = get_minio_client(
+                identity=identity
+            )
+
+            if minio_client.bucket_exists(identity.username) == False:
+                minio_client.make_bucket(
+                    bucket_name=identity.username
+                )
+
+            values_str = str(manipulate_values(
+                helm_values=robot_db.helm_values,
+                identity=identity
+            ))
+            
+            minio_req = minio_client.put_object(
+                bucket_name=identity.username,
+                object_name="instance_" + str(create_instance_req.id) + ".yaml",
+                data=io.BytesIO(bytes(values_str, 'utf-8')),
+                length=len(values_str),
+                content_type="application/x-yaml"
+            )
 
             return PlatformResponse(
                 status_code=200,
                 message="Instance is being created",
                 data={
                     "instance": create_instance_req,
-                    "kubeapps": create_kubeapps_release_req.data
+                    "kubeapps": create_kubeapps_release_req.data,
+                    "minio": minio_req
                 }
             )
 
@@ -218,12 +241,30 @@ def update_instance(
                 )
             )
 
+            minio_client = get_minio_client(
+                identity=identity
+            )
+
+            if minio_client.bucket_exists(identity.username) == False:
+                minio_client.make_bucket(
+                    bucket_name=identity.username
+                )
+
+            minio_req = minio_client.put_object(
+                bucket_name=identity.username,
+                object_name="instance_" + str(edit_instance_req.id) + ".yaml",
+                data=io.BytesIO(bytes(edited_yaml, 'utf-8')),
+                length=len(edited_yaml),
+                content_type="application/x-yaml"
+            )
+
             return PlatformResponse(
                 status_code=200,
                 message="Instance is being edited",
                 data={
                     "instance": edit_instance_req,
-                    "kubeapps": update_kubeapps_release_req.data
+                    "kubeapps": update_kubeapps_release_req.data,
+                    "minio": minio_req
                 }
             )
 
