@@ -1,4 +1,6 @@
 import yaml, json
+from minio import Minio
+
 from sqlalchemy.orm.session import Session
 from database.schemas import instance_schema, kubeapps_schema, platform_schema, keycloak_schema
 from database.schemas.platform_schema import PlatformResponse
