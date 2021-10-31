@@ -136,35 +136,67 @@ def update_instance(
         )
 
 
-@router.post("/testing/{instance_id}")
-def testing(
-    instance_id: int,
-    json_values: dict,
+@router.get("/start-instance/{instance}")
+def start_instance(
+    instance: str,
     identity: keycloak_schema.Identity = Depends(match_identity),
     db: Session = Depends(get_db)
 ):
     try:
-        db_instance = instance_crud.get_instance(
-            db=db,
-            id=instance_id,
-            credentials=keycloak_schema.Credentials(
-                username=identity.username,
-                user_id=identity.user_id
-            )
-        )
-
-        x = platform_ops.generate_edited_yaml(
-            json_values=json_values,
-            instance=db_instance,
+        update_instance_req = platform_ops.update_instance(
+            name=instance,
+            json_values={
+                "deploymentReplicas": 1
+            },
+            identity=identity,
             db=db
         )
 
-        print(x)
-
-
+        if update_instance_req.status_code == 200:
+            return generate_response(
+                "SUCCESS", 
+                update_instance_req.message,
+                update_instance_req.data
+            )
         return generate_response(
             "FAILURE", 
-            ""
+            update_instance_req.message,
+            update_instance_req.data
+        )
+
+    except Exception as e:
+        return generate_response(
+            status="FAILURE", 
+            message=str(e)
+        )
+
+
+@router.get("/stop-instance/{instance}")
+def stop_instance(
+    instance: str,
+    identity: keycloak_schema.Identity = Depends(match_identity),
+    db: Session = Depends(get_db)
+):
+    try:
+        update_instance_req = platform_ops.update_instance(
+            name=instance,
+            json_values={
+                "deploymentReplicas": 0
+            },
+            identity=identity,
+            db=db
+        )
+
+        if update_instance_req.status_code == 200:
+            return generate_response(
+                "SUCCESS", 
+                update_instance_req.message,
+                update_instance_req.data
+            )
+        return generate_response(
+            "FAILURE", 
+            update_instance_req.message,
+            update_instance_req.data
         )
 
     except Exception as e:
