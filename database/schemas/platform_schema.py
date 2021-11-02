@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 class PlatformResponse(BaseModel):
-    status_code: str
+    status_code: int
     message: str
     data: dict
 
