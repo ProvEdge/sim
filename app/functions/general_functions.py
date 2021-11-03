@@ -4,6 +4,8 @@ import giteapy
 from keycloak.keycloak_openid import KeycloakOpenID
 from minio import Minio
 from database.schemas import keycloak_schema
+from animal_case import animalify
+
 
 
 def get_db():
@@ -18,11 +20,17 @@ def get_db():
 def generate_response(status: str, message: str, data = {}):
     # if status == "FAILURE":
     #     raise HTTPException(status_code=400, detail=message)
-    return {
+    response_dict = {
         "status": status,
         "message": message,
         "data": data
     }
+
+    #return animalify(response_dict)
+
+    return response_dict
+
+
 
 async def authorize(access_token: str = Header("tunahan")) -> keycloak_schema.Credentials:
 

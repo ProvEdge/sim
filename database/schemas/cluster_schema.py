@@ -1,16 +1,16 @@
 from typing import List, Optional
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
 from .generic import ResponseBase
 
-class ClusterBase(BaseModel):
+class ClusterBase(CamelModel):
     api_server_address: str
     group_id: str
 
 class ClusterCreate(ClusterBase):
     pass
 
-class ClusterEdit(BaseModel):
+class ClusterEdit(CamelModel):
     api_server_address: Optional[str]
     group_id: Optional[str]
 

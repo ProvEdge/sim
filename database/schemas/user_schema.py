@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
 from .generic import ResponseBase
 
@@ -31,7 +31,7 @@ from .generic import ResponseBase
 #     }
 # }
 
-class UserRepresentation(BaseModel):
+class UserRepresentation(CamelModel):
     id: str
     createdTimestamp: Optional[int]
     username: str
@@ -52,7 +52,7 @@ class GetUserResponse(ResponseBase):
 class GetUsersResponse(ResponseBase):
     data: List[UserRepresentation]
 
-class EditUserRequest(BaseModel):
+class EditUserRequest(CamelModel):
     email: Optional[str]
     firstName: Optional[str]
     lastName: Optional[str]
@@ -60,6 +60,6 @@ class EditUserRequest(BaseModel):
 class GetUserAttributesResponse(ResponseBase):
     data: dict
 
-class AddAttributesRequest(BaseModel):
+class AddAttributesRequest(CamelModel):
     name: str
     attributes: dict

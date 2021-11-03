@@ -6,6 +6,7 @@ from .routes import app_controller
 from app.functions.general_functions import authorize, match_identity
 from database.schemas import keycloak_schema
 
+
 router = APIRouter()
 
 router.include_router(
@@ -17,10 +18,9 @@ router.include_router(
 
 @router.get("")
 async def v0_root(credentials: keycloak_schema.Credentials = Depends(authorize)):
+    
     return {
-        "status": "SUCCES",
-        "message": "API V0 Root",
-        "data": credentials.dict()
+        "tuna": "meyu"
     }
 
 @router.get("/get-kubeapps-token")

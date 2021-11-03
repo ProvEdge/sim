@@ -1,8 +1,8 @@
 from typing import List, Optional, Union
 
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
-class ResponseBase(BaseModel):
+class ResponseBase(CamelModel):
     status: str
     message: str
     data: dict

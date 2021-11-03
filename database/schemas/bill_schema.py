@@ -1,9 +1,9 @@
 from typing import List, Optional
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
 from .generic import ResponseBase
 
-class BillBase(BaseModel):
+class BillBase(CamelModel):
     usage_id: int
     amount: float
     currency: str = "USD"
@@ -12,7 +12,7 @@ class BillBase(BaseModel):
 class BillCreate(BillBase):
     pass
 
-class BillEdit(BaseModel):
+class BillEdit(CamelModel):
     is_paid: bool
 
 class Bill(BillBase):

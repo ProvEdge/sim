@@ -1,9 +1,9 @@
 from typing import List, Optional
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
 from .generic import ResponseBase
 
-class PricingFormulaBase(BaseModel):
+class PricingFormulaBase(CamelModel):
     name: str
     robot_type: str = "jackal"
     robot_coefficient: float
@@ -14,7 +14,7 @@ class PricingFormulaBase(BaseModel):
 class PricingFormulaCreate(PricingFormulaBase):
     pass
 
-class PricingFormulaEdit(BaseModel):
+class PricingFormulaEdit(CamelModel):
     name: Optional[str]
     robot_type: Optional[str]
     robot_coefficient: Optional[float]

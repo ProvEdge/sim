@@ -1,9 +1,9 @@
 from typing import List, Optional
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
 from .generic import ResponseBase
 
-class InstanceBase(BaseModel):
+class InstanceBase(CamelModel):
     name: str
     user_id: str
     # belongs_to_group: bool
@@ -14,7 +14,7 @@ class InstanceBase(BaseModel):
     release_name: str
     helm_values: str = ""
 
-class InstanceCreate(BaseModel):
+class InstanceCreate(CamelModel):
     name: str
     # user_id: str
     # belongs_to_group: bool
@@ -25,7 +25,7 @@ class InstanceCreate(BaseModel):
     release_name: str
     helm_values: str = ""
 
-class InstanceEdit(BaseModel):
+class InstanceEdit(CamelModel):
     name: Optional[str]
     # user_id: Optional[str]
     # belongs_to_group: Optional[bool]

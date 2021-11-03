@@ -1,5 +1,5 @@
 from typing import Any, List, Optional
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
 from .generic import ResponseBase
 
@@ -20,7 +20,7 @@ from .generic import ResponseBase
 # }
 
 
-class GroupRepresentation(BaseModel):
+class GroupRepresentation(CamelModel):
     id: str
     name: str
     path: str
@@ -37,7 +37,7 @@ class GetGroupResponse(ResponseBase):
 class GetGroupsResponse(ResponseBase):
     data: List[GroupRepresentation]
 
-class EditGroupRequest(BaseModel):
+class EditGroupRequest(CamelModel):
     name: Optional[str]
     access: Optional[dict]
     attributes: Optional[dict]
@@ -45,6 +45,6 @@ class EditGroupRequest(BaseModel):
 class GetGroupAttributesResponse(ResponseBase):
     data: dict
 
-class AddAttributesRequest(BaseModel):
+class AddAttributesRequest(CamelModel):
     name: str
     attributes: dict

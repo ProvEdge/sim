@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
-class AdminAccessCredentials(BaseModel):
+class AdminAccessCredentials(CamelModel):
     access_token: str
     refresh_token: str
     id_token: str
@@ -10,7 +10,7 @@ class KCResponse():
         self.status_code = status_code
         self.data = data
 
-class Credentials(BaseModel):
+class Credentials(CamelModel):
     user_id: str
     username: str
 

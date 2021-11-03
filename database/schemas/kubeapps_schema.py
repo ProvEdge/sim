@@ -1,7 +1,7 @@
 from typing import Optional
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
-class KubeappsResponse(BaseModel):
+class KubeappsResponse(CamelModel):
     status_code: int
     data: dict
 
@@ -14,7 +14,7 @@ class KubeappsResponse(BaseModel):
 #   "values": "string"
 # }
 
-class CreateRelease(BaseModel):
+class CreateRelease(CamelModel):
     appRepositoryResourceName: str = "robot-helm-charts"
     appRepositoryResourceNamespace: str = "default"
     chartName: str
@@ -22,7 +22,7 @@ class CreateRelease(BaseModel):
     version: str
     values: str = "namespace: instances\ncmStartName: jackal-start-2\ncmSupervisordName: jackal-supervisord-2\ndeploymentName: jackal-2\ndeploymentReplicas: 1\nhttpPort: 31006\nwebrtcPort: 31007\ntheiaPort: 31008\nrosbridgePort: 31009\nwebvizPort: 31010"
 
-class UpdateRelease(BaseModel):
+class UpdateRelease(CamelModel):
     appRepositoryResourceName: str
     appRepositoryResourceNamespace: str
     chartName: str

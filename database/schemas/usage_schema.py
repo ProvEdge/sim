@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import List, Optional, Union
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 from sqlalchemy.sql.elements import Null
 
 from .generic import ResponseBase
 
-class UsageBase(BaseModel):
+class UsageBase(CamelModel):
     start_time: datetime
     end_time: Optional[datetime]
     is_terminated: bool
@@ -21,10 +21,10 @@ class UsageBase(BaseModel):
     ins_release_name: str
     ins_helm_values: str
 
-class UsageCreate(BaseModel):
+class UsageCreate(CamelModel):
     instance_id: int
 
-class UsageEdit(BaseModel):
+class UsageEdit(CamelModel):
     end_time: Optional[datetime] = datetime.now()
     is_terminated: Optional[bool]
 

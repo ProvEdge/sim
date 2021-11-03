@@ -1,11 +1,9 @@
-from typing import List, Optional, Union
-from pydantic import BaseModel
-from sqlalchemy.sql.elements import Null
-from sqlalchemy.sql.sqltypes import NullType
-
+from typing import List, Optional
+from animal_case import to_camel_case
+from fastapi_camelcase import CamelModel
 from .generic import ResponseBase
 
-class RobotBase(BaseModel):
+class RobotBase(CamelModel):
     type: str
     has_gpu: bool
     gpu_mb: int
@@ -20,7 +18,7 @@ class RobotBase(BaseModel):
 class RobotCreate(RobotBase):
     pass
 
-class RobotEdit(BaseModel):
+class RobotEdit(CamelModel):
     type: Optional[str]
     has_gpu: Optional[bool]
     gpu_mb: Optional[int]
