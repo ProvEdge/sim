@@ -1,7 +1,5 @@
-from fastapi import Depends, APIRouter
-from pydantic.main import BaseModel
-from sqlalchemy.orm import Session
-from typing import Any, Union, List, Optional
+from fastapi import APIRouter
+from typing import Union
 
 from app import models
 from database.schemas import generic, group_schema, user_schema

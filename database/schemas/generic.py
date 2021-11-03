@@ -6,3 +6,6 @@ class ResponseBase(CamelModel):
     status: str
     message: str
     data: dict
+
+class AuthError(CamelModel):
+    detail: str

@@ -3,6 +3,8 @@ from fastapi import APIRouter
 
 from typing import Union
 
+from database.schemas.generic import ResponseBase, AuthError
+
 from . import users, robots, instances, usages, kubeapps, platform # bills, pricing_formulas, clusters, groups
 
 router = APIRouter()
@@ -10,8 +12,7 @@ router = APIRouter()
 router.include_router(
     platform.router,
     prefix="/platform",
-    tags=["Platform"]
-    #responses={418: {"description": "I'm a teapot"}},
+    tags=["Platform"],
 )
 
 router.include_router(
@@ -59,21 +60,21 @@ router.include_router(
 router.include_router(
     robots.router,
     prefix="/robots",
-    tags=["Robots"]
+    tags=["Robot Records"]
     #responses={418: {"description": "I'm a teapot"}},
 )
 
 router.include_router(
     instances.router,
     prefix="/instances",
-    tags=["Instances"]
+    tags=["Instance Records"]
     #responses={418: {"description": "I'm a teapot"}},
 )
 
 router.include_router(
     usages.router,
     prefix="/usages",
-    tags=["Usages"]
+    tags=["Usage Records"]
     #responses={418: {"description": "I'm a teapot"}},
 )
 

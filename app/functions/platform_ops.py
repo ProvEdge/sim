@@ -1,26 +1,31 @@
-import yaml, json, io
+from fastapi.exceptions import HTTPException
+from fastapi_camelcase import CamelModel
+import yaml, io
+from animal_case import animalify
 
 from sqlalchemy.orm.session import Session
 from app.functions.general_functions import get_minio_client
 from database.schemas import instance_schema, kubeapps_schema, platform_schema, keycloak_schema
 from database.schemas.platform_schema import PlatformResponse
-
 from app.functions import instance_crud, kubeapps_rest_crud, robot_crud
 
 def list_instances(
     identity: keycloak_schema.Identity
 ) -> PlatformResponse:
 
+    
     get_releases_req = kubeapps_rest_crud.get_releases_by_namespace(
         id_token=identity.id_token,
         namespace=identity.username
     )
 
     if get_releases_req.status_code == 200:
+        releases = platform_schema.ListReleasesResponseData.parse_obj(get_releases_req.data)
+
         return PlatformResponse(
             status_code=200,
             message="Releases (namespaced) are listed",
-            data=get_releases_req.data
+            data=releases.dict()
         )
 
     return PlatformResponse(
@@ -28,8 +33,6 @@ def list_instances(
             message="Cannot get releases from Kubeapps",
             data={}
         )
-    
-
 
 def create_instance(
     identity: keycloak_schema.Identity,
