@@ -24,7 +24,7 @@ def list_instances(
         identity=identity
     )
 
-    if list_instances_req.status_code == 205:
+    if list_instances_req.status_code == 200:
         return generate_response(
             "SUCCESS", 
             list_instances_req.message,
@@ -43,7 +43,10 @@ def list_instances(
     
 
 
-@router.post("/create-instance")
+@router.post(
+    path="/create-instance",
+    response_model=platform_schema.CreateReleaseResponse
+)
 def create_instance(
     instance: platform_schema.CreateInstance,
     identity: keycloak_schema.Identity = Depends(match_identity),

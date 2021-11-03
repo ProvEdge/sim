@@ -11,11 +11,6 @@ class CreateInstance(CamelModel):
     name: str
     robot_type: str
 
-class CreateInstanceResponse(ResponseBase):
-    data: dict
-
-# class ListInstancesServiceResponse(CamelModel):
-#     release_name
 
 # "data": [
 #     {
@@ -47,3 +42,67 @@ class ListReleasesResponseData(CamelModel):
 
 class ListReleasesResponse(ResponseBase):
     data: ListReleasesResponseData
+
+
+# {
+#   "status": "string",
+#   "message": "string",
+#   "data": {
+#     "creationStatus": {
+#       "instance": {
+#         "success": true,
+#         "message": "string"
+#       },
+#       "kubeapps": {
+#         "success": true,
+#         "message": "string"
+#       },
+#       "minio": {
+#         "success": true,
+#         "message": "string"
+#       }
+#     }
+#   }
+# }
+
+class CreateReleaseInstanceStatus(CamelModel):
+    success: bool
+    message: str
+
+class CreateReleaseKubeappsStatus(CreateReleaseInstanceStatus):
+    pass
+
+class CreateReleaseMinioStatus(CreateReleaseInstanceStatus):
+    pass
+
+class CreateReleaseStatus(CamelModel):
+    instance: CreateReleaseInstanceStatus
+    kubeapps: CreateReleaseKubeappsStatus
+    minio: CreateReleaseMinioStatus
+
+class CreateReleaseResponseData(CamelModel):
+    creation_status: CreateReleaseStatus
+
+class CreateReleaseResponse(ResponseBase):
+    data: CreateReleaseResponseData
+
+
+
+
+
+class DeleteReleaseInstanceStatus(CamelModel):
+    success: bool
+    message: str
+
+class DeleteReleaseKubeappsStatus(DeleteReleaseInstanceStatus):
+    pass
+
+class DeleteReleaseStatus(CamelModel):
+    instance: DeleteReleaseInstanceStatus
+    kubeapps: DeleteReleaseKubeappsStatus
+
+class DeleteReleaseResponseData(CamelModel):
+    deletion_status: DeleteReleaseStatus
+
+class DeleteReleaseResponse(ResponseBase):
+    data: DeleteReleaseResponseData

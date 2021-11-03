@@ -6,12 +6,13 @@ from animal_case import animalify
 from sqlalchemy.orm.session import Session
 from app.functions.general_functions import get_minio_client
 from database.schemas import instance_schema, kubeapps_schema, platform_schema, keycloak_schema
+from database.schemas import platform_schema
 from database.schemas.platform_schema import PlatformResponse
 from app.functions import instance_crud, kubeapps_rest_crud, robot_crud
 
 def list_instances(
     identity: keycloak_schema.Identity
-) -> PlatformResponse:
+) -> platform_schema.PlatformResponse:
 
     
     get_releases_req = kubeapps_rest_crud.get_releases_by_namespace(
@@ -22,7 +23,7 @@ def list_instances(
     if get_releases_req.status_code == 200:
         releases = platform_schema.ListReleasesResponseData.parse_obj(get_releases_req.data)
 
-        return PlatformResponse(
+        return platform_schema.PlatformResponse(
             status_code=200,
             message="Releases (namespaced) are listed",
             data=releases.dict()
@@ -39,94 +40,125 @@ def create_instance(
     name: str,
     robot_type: str,
     db: Session
-) -> PlatformResponse:
+) -> platform_schema.PlatformResponse:
 
-    try:
-        robot_db = robot_crud.get_robot(
-            db=db,
-            type=robot_type
+    
+    robot_db = robot_crud.get_robot(
+        db=db,
+        type=robot_type
+    )
+
+    create_kubeapps_release_req = kubeapps_rest_crud.post_release(
+        id_token=identity.id_token,
+        namespace=identity.username,
+        release=kubeapps_schema.CreateRelease(
+            appRepositoryResourceName=robot_db.app_repository,
+            appRepositoryResourceNamespace=robot_db.app_repository_namespace,
+            chartName=robot_db.chart_name,
+            version=robot_db.chart_version,
+            releaseName=name,
+            values=manipulate_values(
+                helm_values=robot_db.helm_values,
+                identity=identity
+            )
         )
+    )
 
-        create_kubeapps_release_req = kubeapps_rest_crud.post_release(
-            id_token=identity.id_token,
-            namespace=identity.username,
-            release=kubeapps_schema.CreateRelease(
-                appRepositoryResourceName=robot_db.app_repository,
-                appRepositoryResourceNamespace=robot_db.app_repository_namespace,
-                chartName=robot_db.chart_name,
-                version=robot_db.chart_version,
-                releaseName=name,
-                values=manipulate_values(
+    if create_kubeapps_release_req.status_code == 200:
+
+        create_instance_req = instance_crud.create_instance(
+            db=db,
+            instance=instance_schema.InstanceCreate(
+                name=name,
+                namespace=identity.username,
+                robot_type=robot_type,
+                release_name=name,
+                helm_values=manipulate_values(
                     helm_values=robot_db.helm_values,
                     identity=identity
                 )
+            ),
+            credentials=keycloak_schema.Credentials(
+                username=identity.username,
+                user_id=identity.user_id
             )
         )
 
-        if create_kubeapps_release_req.status_code == 200:
+        minio_client = get_minio_client(
+            identity=identity
+        )
 
-            create_instance_req = instance_crud.create_instance(
-                db=db,
-                instance=instance_schema.InstanceCreate(
-                    name=name,
-                    namespace=identity.username,
-                    robot_type=robot_type,
-                    release_name=name,
-                    helm_values=manipulate_values(
-                        helm_values=robot_db.helm_values,
-                        identity=identity
-                    )
+        if minio_client.bucket_exists(identity.username) == False:
+            minio_client.make_bucket(
+                bucket_name=identity.username
+            )
+
+        values_str = str(manipulate_values(
+            helm_values=robot_db.helm_values,
+            identity=identity
+        ))
+        
+        minio_req = minio_client.put_object(
+            bucket_name=identity.username,
+            object_name="instance_" + str(create_instance_req.id) + ".yaml",
+            data=io.BytesIO(bytes(values_str, 'utf-8')),
+            length=len(values_str),
+            content_type="application/x-yaml"
+        )
+
+        data = { 
+            "instance": create_instance_req,
+            "kubeapps": create_kubeapps_release_req.data,
+            "minio": minio_req
+        }
+
+        create_release_response_data = platform_schema.CreateReleaseResponseData(
+            creation_status=platform_schema.CreateReleaseStatus(
+                instance=platform_schema.CreateReleaseInstanceStatus(
+                    success=True,
+                    message="Instance record is created in database."
                 ),
-                credentials=keycloak_schema.Credentials(
-                    username=identity.username,
-                    user_id=identity.user_id
+                kubeapps=platform_schema.CreateReleaseKubeappsStatus(
+                    success=True,
+                    message="Kubeapps release is created."
+                ),
+                minio=platform_schema.CreateReleaseMinioStatus(
+                    success=True,
+                    message="MinIO values injection is added."
                 )
             )
-
-            minio_client = get_minio_client(
-                identity=identity
-            )
-
-            if minio_client.bucket_exists(identity.username) == False:
-                minio_client.make_bucket(
-                    bucket_name=identity.username
-                )
-
-            values_str = str(manipulate_values(
-                helm_values=robot_db.helm_values,
-                identity=identity
-            ))
-            
-            minio_req = minio_client.put_object(
-                bucket_name=identity.username,
-                object_name="instance_" + str(create_instance_req.id) + ".yaml",
-                data=io.BytesIO(bytes(values_str, 'utf-8')),
-                length=len(values_str),
-                content_type="application/x-yaml"
-            )
-
-            return PlatformResponse(
-                status_code=200,
-                message="Instance is being created",
-                data={
-                    "instance": create_instance_req,
-                    "kubeapps": create_kubeapps_release_req.data,
-                    "minio": minio_req
-                }
-            )
-
-        return PlatformResponse(
-            status_code=400,
-            message="Cannot create instance",
-            data=create_kubeapps_release_req.data
         )
 
-    except Exception as e:
         return PlatformResponse(
-            status_code=400,
-            message=str(e),
-            data={}
+            status_code=200,
+            message="Instance is being created",
+            data=create_release_response_data.dict()
         )
+
+    create_release_response_data = platform_schema.CreateReleaseResponseData(
+        creation_status=platform_schema.CreateReleaseStatus(
+            instance=platform_schema.CreateReleaseInstanceStatus(
+                success=False,
+                message="Upper Error."
+            ),
+            kubeapps=platform_schema.CreateReleaseKubeappsStatus(
+                success=False,
+                message=str(create_kubeapps_release_req.data)
+            ),
+            minio=platform_schema.CreateReleaseMinioStatus(
+                success=False,
+                message="Upper Error"
+            )
+        )
+    )
+
+    return PlatformResponse(
+        status_code=400,
+        message="Cannot create instance",
+        data=create_release_response_data.dict()
+    )
+
+   
 
 def delete_instance(
     identity: keycloak_schema.Identity,
@@ -159,6 +191,7 @@ def delete_instance(
                     user_id=identity.user_id
                 )
             )
+
 
             return PlatformResponse(
                 status_code=200,
