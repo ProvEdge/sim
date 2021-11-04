@@ -241,113 +241,123 @@ def update_instance(
     db: Session
 ) -> PlatformResponse:
 
-    try:
-        instance_db = instance_crud.get_instance_by_name(
+    instance_db = instance_crud.get_instance_by_name(
+        db=db,
+        name=name,
+        credentials=keycloak_schema.Credentials(
+            username=identity.username,
+            user_id=identity.user_id
+        )
+    )
+
+    robot_db = robot_crud.get_robot(
+        db=db,
+        type=instance_db.robot_type
+    )
+
+    is_valid, edited_yaml = generate_edited_yaml(
+        json_values=json_values,
+        instance=instance_db,
+        db=db
+    )
+
+    if is_valid == False:
+        return PlatformResponse(
+            status_code=400,
+            message="Values are not valid, follow the format: " + robot_db.helm_values,
+            data={}
+        )
+
+    update_kubeapps_release_req = kubeapps_rest_crud.update_release(
+        id_token=identity.id_token,
+        namespace=identity.username,
+        release_name=instance_db.release_name,
+        release=kubeapps_schema.UpdateRelease(
+            appRepositoryResourceName=robot_db.app_repository,
+            appRepositoryResourceNamespace=robot_db.app_repository_namespace,
+            chartName=robot_db.chart_name,
+            values=edited_yaml
+        )
+    )
+
+    if update_kubeapps_release_req.status_code == 200:
+
+        edit_instance_req = instance_crud.edit_instance(
             db=db,
-            name=name,
+            id=instance_db.id,
+            instance=instance_schema.InstanceEdit(
+                helm_values=edited_yaml
+            ),
             credentials=keycloak_schema.Credentials(
                 username=identity.username,
                 user_id=identity.user_id
             )
         )
 
-        robot_db = robot_crud.get_robot(
-            db=db,
-            type=instance_db.robot_type
+        minio_client = get_minio_client(
+            identity=identity
         )
 
-        is_valid, edited_yaml = generate_edited_yaml(
-            json_values=json_values,
-            instance=instance_db,
-            db=db
-        )
-
-        if is_valid == False:
-            return PlatformResponse(
-                status_code=400,
-                message="Values are not valid, follow the format: " + robot_db.helm_values,
-                data={}
+        if minio_client.bucket_exists(identity.username) == False:
+            minio_client.make_bucket(
+                bucket_name=identity.username
             )
 
-        update_kubeapps_release_req = kubeapps_rest_crud.update_release(
-            id_token=identity.id_token,
-            namespace=identity.username,
-            release_name=instance_db.release_name,
-            release=kubeapps_schema.UpdateRelease(
-                appRepositoryResourceName=robot_db.app_repository,
-                appRepositoryResourceNamespace=robot_db.app_repository_namespace,
-                chartName=robot_db.chart_name,
-                values=edited_yaml
-            )
+        minio_req = minio_client.put_object(
+            bucket_name=identity.username,
+            object_name="instance_" + str(edit_instance_req.id) + ".yaml",
+            data=io.BytesIO(bytes(edited_yaml, 'utf-8')),
+            length=len(edited_yaml),
+            content_type="application/x-yaml"
         )
 
-        if update_kubeapps_release_req.status_code == 200:
-
-            edit_instance_req = instance_crud.edit_instance(
-                db=db,
-                id=instance_db.id,
-                instance=instance_schema.InstanceEdit(
-                    helm_values=edited_yaml
+        update_release_response_data = platform_schema.UpdateReleaseResponseData(
+            update_status=platform_schema.UpdateReleaseStatus(
+                instance=platform_schema.UpdateReleaseInstanceStatus(
+                    success=True,
+                    message="Instance is updated in database."
                 ),
-                credentials=keycloak_schema.Credentials(
-                    username=identity.username,
-                    user_id=identity.user_id
-                )
+                kubeapps=platform_schema.UpdateReleaseKubeappsStatus(
+                    success=True,
+                    message="Kubeapps release is updated."
+                ),
+                minio=platform_schema.UpdateReleaseMinioStatus(
+                    success=True,
+                    message="MinIO values are updated."
+                ),
             )
-
-            minio_client = get_minio_client(
-                identity=identity
-            )
-
-            if minio_client.bucket_exists(identity.username) == False:
-                minio_client.make_bucket(
-                    bucket_name=identity.username
-                )
-
-            minio_req = minio_client.put_object(
-                bucket_name=identity.username,
-                object_name="instance_" + str(edit_instance_req.id) + ".yaml",
-                data=io.BytesIO(bytes(edited_yaml, 'utf-8')),
-                length=len(edited_yaml),
-                content_type="application/x-yaml"
-            )
-
-            update_release_response_data = platform_schema.UpdateReleaseResponseData(
-                update_status=platform_schema.UpdateReleaseStatus(
-                    instance=platform_schema.UpdateReleaseInstanceStatus(
-                        success=True,
-                        message="Instance is updated in database."
-                    ),
-                    kubeapps=platform_schema.UpdateReleaseKubeappsStatus(
-                        success=True,
-                        message="Kubeapps release is updated."
-                    ),
-                    minio=platform_schema.UpdateReleaseMinioStatus(
-                        success=True,
-                        message="MinIO values are updated."
-                    ),
-                )
-            )
-
-            return PlatformResponse(
-                status_code=200,
-                message="Instance is being edited",
-                data=update_release_response_data.dict()
-            )
-
-        else: 
-            return PlatformResponse(
-                status_code=400,
-                message="Cannot update instance",
-                data=update_kubeapps_release_req.data
-            )
-    except Exception as e:
-        return PlatformResponse(
-            status_code=400,
-            message=str(e),
-            data={}
         )
 
+        return PlatformResponse(
+            status_code=200,
+            message="Instance is being edited",
+            data=update_release_response_data.dict()
+        )
+
+    else: 
+
+        update_release_response_data = platform_schema.UpdateReleaseResponseData(
+            update_status=platform_schema.UpdateReleaseStatus(
+                instance=platform_schema.UpdateReleaseInstanceStatus(
+                    success=False,
+                    message="Upper error."
+                ),
+                kubeapps=platform_schema.UpdateReleaseKubeappsStatus(
+                    success=False,
+                    message="Kubeapps release cannot be updated."
+                ),
+                minio=platform_schema.UpdateReleaseMinioStatus(
+                    success=False,
+                    message="Upper error."
+                ),
+            )
+        )
+
+        return PlatformResponse(
+            status_code=406,
+            message="Cannot update instance",
+            data=update_release_response_data.dict()
+        )
 
     
 # replace it with smarter helm value picker !

@@ -9,3 +9,5 @@ keycloak==3.1.0
 uvicorn==0.14.0
 psycopg2==2.9.1
 minio==7.1.1
+fastapi-camelcase==1.0.3
+animal-case==0.5.1

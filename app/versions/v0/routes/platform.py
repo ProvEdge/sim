@@ -108,110 +108,115 @@ def delete_instance(
     )
     
 
-
-
-@router.put("/update-instance/{instance}")
+@router.put(
+    path="/update-instance/{instance}",
+    response_model=platform_schema.UpdateReleaseResponse
+)
 def update_instance(
     instance: str,
     values: dict, # define format
     identity: keycloak_schema.Identity = Depends(match_identity),
     db: Session = Depends(get_db)
 ):
-    try:
-        update_instance_req = platform_ops.update_instance(
-            name=instance,
-            json_values=values,
-            identity=identity,
-            db=db
-        )
+    update_instance_req = platform_ops.update_instance(
+        name=instance,
+        json_values=values,
+        identity=identity,
+        db=db
+    )
 
-        if update_instance_req.status_code == 200:
-            return generate_response(
-                "SUCCESS", 
-                update_instance_req.message,
-                update_instance_req.data
-            )
+    if update_instance_req.status_code == 200:
         return generate_response(
-            "FAILURE", 
+            "SUCCESS", 
             update_instance_req.message,
             update_instance_req.data
         )
 
-    except Exception as e:
-        return generate_response(
-            status="FAILURE", 
-            message=str(e)
+    return JSONResponse(
+        status_code=update_instance_req.status_code,
+        content=generate_response(
+            "FAILURE",
+            update_instance_req.message,
+            update_instance_req.data
         )
+    )
+    
 
 
-@router.get("/start-instance/{instance}")
+@router.get(
+    path="/start-instance/{instance}",
+    response_model=platform_schema.UpdateReleaseResponse
+)
 def start_instance(
     instance: str,
     identity: keycloak_schema.Identity = Depends(match_identity),
     db: Session = Depends(get_db)
 ):
-    try:
-        update_instance_req = platform_ops.update_instance(
-            name=instance,
-            json_values={
-                "deploymentReplicas": 1
-            },
-            identity=identity,
-            db=db
-        )
 
-        if update_instance_req.status_code == 200:
-            return generate_response(
-                "SUCCESS", 
-                update_instance_req.message,
-                update_instance_req.data
-            )
+    replica_count = 1
+
+    update_instance_req = platform_ops.update_instance(
+        name=instance,
+        json_values={
+            "deploymentReplicas": replica_count
+        },
+        identity=identity,
+        db=db
+    )
+
+    if update_instance_req.status_code == 200:
         return generate_response(
-            "FAILURE", 
-            update_instance_req.message,
+            "SUCCESS", 
+            "Instance is started, replica count is " + str(replica_count),
             update_instance_req.data
         )
 
-    except Exception as e:
-        return generate_response(
-            status="FAILURE", 
-            message=str(e)
+    return JSONResponse(
+        status_code=update_instance_req.status_code,
+        content=generate_response(
+            "FAILURE",
+            update_instance_req.message,
+            update_instance_req.data
         )
+    )
 
 
-@router.get("/stop-instance/{instance}")
+@router.get(
+    path="/stop-instance/{instance}",
+    response_model=platform_schema.UpdateReleaseResponse
+)
 def stop_instance(
     instance: str,
     identity: keycloak_schema.Identity = Depends(match_identity),
     db: Session = Depends(get_db)
 ):
-    try:
-        update_instance_req = platform_ops.update_instance(
-            name=instance,
-            json_values={
-                "deploymentReplicas": 0
-            },
-            identity=identity,
-            db=db
-        )
+    replica_count = 0
 
-        if update_instance_req.status_code == 200:
-            return generate_response(
-                "SUCCESS", 
-                update_instance_req.message,
-                update_instance_req.data
-            )
+    update_instance_req = platform_ops.update_instance(
+        name=instance,
+        json_values={
+            "deploymentReplicas": replica_count
+        },
+        identity=identity,
+        db=db
+    )
+
+    if update_instance_req.status_code == 200:
         return generate_response(
-            "FAILURE", 
-            update_instance_req.message,
+            "SUCCESS", 
+            "Instance is started, replica count is " + str(replica_count),
             update_instance_req.data
         )
 
-    except Exception as e:
-        return generate_response(
-            status="FAILURE", 
-            message=str(e)
+    return JSONResponse(
+        status_code=update_instance_req.status_code,
+        content=generate_response(
+            "FAILURE",
+            update_instance_req.message,
+            update_instance_req.data
         )
+    )
+
 
 
 # @router.get("/minio-test")
