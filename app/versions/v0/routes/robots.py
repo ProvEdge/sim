@@ -14,7 +14,11 @@ models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
 
-@router.get("", response_model=Union[robot_schema.ListRobotsResponse, generic.ResponseBase])
+@router.get(
+    path="", 
+    response_model=Union[robot_schema.ListRobotsResponse, generic.ResponseBase],
+    tags=["Platform"]
+)
 def read_robots(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     try:
         robots = robot_crud.get_robots(db, skip=skip, limit=limit)
@@ -23,7 +27,11 @@ def read_robots(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
         return generate_response(status="FAILURE", message=str(e))
 
 
-@router.get("/{type}", response_model=Union[robot_schema.GetRobotResponse, generic.ResponseBase])
+@router.get(
+    path="/{type}", 
+    response_model=Union[robot_schema.GetRobotResponse, generic.ResponseBase],
+    tags=["Platform"]
+)
 def read_robot_by_type(type: str, db: Session = Depends(get_db)):
     try:
         db_robot = robot_crud.get_robot(db, type=type)
@@ -43,7 +51,10 @@ def read_robot_by_type(type: str, db: Session = Depends(get_db)):
             str(e)
         )
 
-@router.post("", response_model=Union[robot_schema.GetRobotResponse, generic.ResponseBase])
+@router.post(
+    path="", 
+    response_model=Union[robot_schema.GetRobotResponse, generic.ResponseBase]
+)
 def create_robot(robot: robot_schema.RobotCreate, db: Session = Depends(get_db)):
     try:
         rbt = robot_crud.create_robot(db=db, robot=robot)
@@ -60,7 +71,10 @@ def create_robot(robot: robot_schema.RobotCreate, db: Session = Depends(get_db))
         )
 
 
-@router.patch("/{type}", response_model=Union[robot_schema.GetRobotResponse, generic.ResponseBase])
+@router.patch(
+    path="/{type}", 
+    response_model=Union[robot_schema.GetRobotResponse, generic.ResponseBase]
+)
 def edit_robot(robot: robot_schema.RobotEdit, type: str, db: Session = Depends(get_db)):
     try:
         db_robot = robot_crud.get_robot(db, type=type)
@@ -84,7 +98,10 @@ def edit_robot(robot: robot_schema.RobotEdit, type: str, db: Session = Depends(g
             str(e)
         )
 
-@router.delete("/{type}", response_model=Union[robot_schema.GetRobotResponse, generic.ResponseBase])
+@router.delete(
+    path="/{type}", 
+    response_model=Union[robot_schema.GetRobotResponse, generic.ResponseBase]
+)
 def delete_robot(type: str, db: Session = Depends(get_db)):
     try:
         db_robot = robot_crud.get_robot(db, type=type)

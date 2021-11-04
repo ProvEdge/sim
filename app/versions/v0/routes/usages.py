@@ -14,7 +14,11 @@ models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
 
-@router.get("", response_model=Union[usage_schema.ListUsageResponse, generic.ResponseBase])
+@router.get(
+    path="", 
+    response_model=Union[usage_schema.ListUsageResponse, generic.ResponseBase],
+    tags=["Platform"]
+)
 def read_usages(
     start_time: Optional[datetime] = "", 
     end_time: Optional[datetime] = "", 
@@ -52,7 +56,11 @@ def read_usages(
         return generate_response(status="FAILURE", message=str(e))
 
 
-@router.get("/{id}", response_model=Union[usage_schema.GetUsageResponse, generic.ResponseBase])
+@router.get(
+    path="/{id}", 
+    response_model=Union[usage_schema.GetUsageResponse, generic.ResponseBase],
+    tags=["Platform"]
+)
 def read_usage_by_id(
     id: int, 
     credentials: keycloak_schema.Credentials = Depends(authorize),
@@ -80,7 +88,10 @@ def read_usage_by_id(
             str(e)
         )
 
-@router.post("", response_model=Union[dict, generic.ResponseBase])
+@router.post(
+    path="", 
+    response_model=Union[dict, generic.ResponseBase]
+)
 def create_usage(
     usage: usage_schema.UsageCreate, 
     credentials: keycloak_schema.Credentials = Depends(authorize),
@@ -117,7 +128,10 @@ def create_usage(
         )
 
 
-@router.patch("/{id}", response_model=Union[usage_schema.GetUsageResponse, generic.ResponseBase])
+@router.patch(
+    path="/{id}", 
+    response_model=Union[usage_schema.GetUsageResponse, generic.ResponseBase]
+)
 def edit_usage(
     usage: usage_schema.UsageEdit, 
     id: int, 
@@ -155,7 +169,10 @@ def edit_usage(
             str(e)
         )
 
-@router.delete("/{id}", response_model=Union[usage_schema.GetUsageResponse, generic.ResponseBase])
+@router.delete(
+    path="/{id}", 
+    response_model=Union[usage_schema.GetUsageResponse, generic.ResponseBase]
+)
 def delete_usage(
     id: int, 
     credentials: keycloak_schema.Credentials = Depends(authorize),

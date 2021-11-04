@@ -14,7 +14,11 @@ models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
 
-@router.get("", response_model=Union[instance_schema.ListInstancesResponse, generic.ResponseBase])
+@router.get(
+    path="", 
+    response_model=Union[instance_schema.ListInstancesResponse, generic.ResponseBase],
+    tags=["Platform"]
+)
 def read_instances(
     credentials: keycloak_schema.Credentials = Depends(authorize),
     belongs_to_group: Optional[bool] = False, 
@@ -42,7 +46,11 @@ def read_instances(
         return generate_response(status="FAILURE", message=str(e))
 
 
-@router.get("/{id}", response_model=Union[instance_schema.GetInstanceResponse, generic.ResponseBase])
+@router.get(
+    path="/{id}", 
+    response_model=Union[instance_schema.GetInstanceResponse, generic.ResponseBase],
+    tags=["Platform"]
+)
 def read_instance_by_id(
     id: int, 
     credentials: keycloak_schema.Credentials = Depends(authorize),
@@ -71,7 +79,10 @@ def read_instance_by_id(
         )
 
 
-@router.post("", response_model=Union[instance_schema.GetInstanceResponse, generic.ResponseBase])
+@router.post(
+    path="", 
+    response_model=Union[instance_schema.GetInstanceResponse, generic.ResponseBase]
+)
 def create_instance(
     instance: instance_schema.InstanceCreate,
     credentials: keycloak_schema.Credentials = Depends(authorize),
@@ -96,7 +107,10 @@ def create_instance(
         )
 
 
-@router.patch("/{id}", response_model=Union[instance_schema.GetInstanceResponse, generic.ResponseBase])
+@router.patch(
+    path="/{id}", 
+    response_model=Union[instance_schema.GetInstanceResponse, generic.ResponseBase]
+)
 def edit_instance(
     instance: instance_schema.InstanceEdit, 
     id: int, 
@@ -134,7 +148,9 @@ def edit_instance(
             str(e)
         )
 
-@router.delete("/{id}", response_model=Union[instance_schema.GetInstanceResponse, generic.ResponseBase])
+@router.delete(
+    path="/{id}", response_model=Union[instance_schema.GetInstanceResponse, generic.ResponseBase]
+)
 def delete_instance(
     id: int, 
     db: Session = Depends(get_db),
