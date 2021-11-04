@@ -87,8 +87,22 @@ class CreateReleaseResponse(ResponseBase):
     data: CreateReleaseResponseData
 
 
-
-
+# {
+#   "status": "SUCCESS",
+#   "message": "Instance is being deleted",
+#   "data": {
+#     "deletionStatus": {
+#       "instance": {
+#         "success": true,
+#         "message": "Instance is deleted."
+#       },
+#       "kubeapps": {
+#         "success": true,
+#         "message": "Kubeapps release is deleted."
+#       }
+#     }
+#   }
+# }
 
 class DeleteReleaseInstanceStatus(CamelModel):
     success: bool
@@ -106,3 +120,28 @@ class DeleteReleaseResponseData(CamelModel):
 
 class DeleteReleaseResponse(ResponseBase):
     data: DeleteReleaseResponseData
+
+#
+#
+
+
+class UpdateReleaseInstanceStatus(CamelModel):
+    success: bool
+    message: str
+
+class UpdateReleaseKubeappsStatus(UpdateReleaseInstanceStatus):
+    pass
+
+class UpdateReleaseMinioStatus(UpdateReleaseInstanceStatus):
+    pass
+
+class UpdateReleaseStatus(CamelModel):
+    instance: UpdateReleaseInstanceStatus
+    kubeapps: UpdateReleaseKubeappsStatus
+    minio: UpdateReleaseMinioStatus
+
+class UpdateReleaseResponseData(CamelModel):
+    update_status: UpdateReleaseStatus
+
+class UpdateReleaseResponse(ResponseBase):
+    data: UpdateReleaseResponseData

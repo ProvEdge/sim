@@ -7,7 +7,7 @@ from sqlalchemy.orm.session import Session
 from app.functions.general_functions import get_minio_client
 from database.schemas import instance_schema, kubeapps_schema, platform_schema, keycloak_schema
 from database.schemas import platform_schema
-from database.schemas.platform_schema import PlatformResponse
+from database.schemas.platform_schema import DeleteReleaseInstanceStatus, DeleteReleaseKubeappsStatus, PlatformResponse
 from app.functions import instance_crud, kubeapps_rest_crud, robot_crud
 
 def list_instances(
@@ -106,11 +106,7 @@ def create_instance(
             content_type="application/x-yaml"
         )
 
-        data = { 
-            "instance": create_instance_req,
-            "kubeapps": create_kubeapps_release_req.data,
-            "minio": minio_req
-        }
+        # control minio response
 
         create_release_response_data = platform_schema.CreateReleaseResponseData(
             creation_status=platform_schema.CreateReleaseStatus(
@@ -153,7 +149,7 @@ def create_instance(
     )
 
     return PlatformResponse(
-        status_code=400,
+        status_code=406,
         message="Cannot create instance",
         data=create_release_response_data.dict()
     )
@@ -166,53 +162,75 @@ def delete_instance(
     db: Session
 ) -> PlatformResponse:
 
-    try:
-        instance_db = instance_crud.get_instance_by_name(
+    instance_db = instance_crud.get_instance_by_name(
+        db=db,
+        name=name,
+        credentials=keycloak_schema.Credentials(
+            username=identity.username,
+            user_id=identity.user_id
+        )
+    )
+
+    if instance_db is None:
+        return PlatformResponse(
+            status_code=404,
+            message="Instance not found.",
+            data={}
+        )
+
+    delete_kubeapps_release_req = kubeapps_rest_crud.delete_release(
+        id_token=identity.id_token,
+        namespace=identity.username,
+        release=instance_db.release_name
+    )
+
+    if delete_kubeapps_release_req.status_code == 200:
+        delete_instance_req = instance_crud.delete_instance(
             db=db,
-            name=name,
+            id=instance_db.id,
             credentials=keycloak_schema.Credentials(
                 username=identity.username,
                 user_id=identity.user_id
             )
         )
 
-        delete_kubeapps_release_req = kubeapps_rest_crud.delete_release(
-            id_token=identity.id_token,
-            namespace=identity.username,
-            release=instance_db.release_name
-        )
-
-        if delete_kubeapps_release_req.status_code == 200:
-            delete_instance_req = instance_crud.delete_instance(
-                db=db,
-                id=instance_db.id,
-                credentials=keycloak_schema.Credentials(
-                    username=identity.username,
-                    user_id=identity.user_id
+        delete_release_response_data = platform_schema.DeleteReleaseResponseData(
+            deletion_status=platform_schema.DeleteReleaseStatus(
+                instance=DeleteReleaseInstanceStatus(
+                    success=True,
+                    message="Instance is deleted."
+                ),
+                kubeapps=DeleteReleaseKubeappsStatus(
+                    success=True,
+                    message="Kubeapps release is deleted."
                 )
             )
+        )
 
 
-            return PlatformResponse(
-                status_code=200,
-                message="Instance is being deleted",
-                data={
-                    "instance": delete_instance_req,
-                    "kubeapps": delete_kubeapps_release_req.data
-                }
-            )
-
-        else: 
-            return PlatformResponse(
-                status_code=400,
-                message="Cannot delete instance",
-                data=delete_kubeapps_release_req.data
-            )
-    except Exception as e:
         return PlatformResponse(
-            status_code=400,
-            message=str(e),
-            data={}
+            status_code=200,
+            message="Instance is being deleted",
+            data=delete_release_response_data.dict()
+        )
+
+    else: 
+        delete_release_response_data = platform_schema.DeleteReleaseResponseData(
+            deletion_status=platform_schema.DeleteReleaseStatus(
+                instance=DeleteReleaseInstanceStatus(
+                    success=False,
+                    message="Upper error."
+                ),
+                kubeapps=DeleteReleaseKubeappsStatus(
+                    success=False,
+                    message="Kubeapps release cannot be deleted."
+                )
+            )
+        )
+        return PlatformResponse(
+            status_code=406,
+            message="Cannot delete instance",
+            data=delete_kubeapps_release_req.data
         )
 
 
@@ -294,14 +312,27 @@ def update_instance(
                 content_type="application/x-yaml"
             )
 
+            update_release_response_data = platform_schema.UpdateReleaseResponseData(
+                update_status=platform_schema.UpdateReleaseStatus(
+                    instance=platform_schema.UpdateReleaseInstanceStatus(
+                        success=True,
+                        message="Instance is updated in database."
+                    ),
+                    kubeapps=platform_schema.UpdateReleaseKubeappsStatus(
+                        success=True,
+                        message="Kubeapps release is updated."
+                    ),
+                    minio=platform_schema.UpdateReleaseMinioStatus(
+                        success=True,
+                        message="MinIO values are updated."
+                    ),
+                )
+            )
+
             return PlatformResponse(
                 status_code=200,
                 message="Instance is being edited",
-                data={
-                    "instance": edit_instance_req,
-                    "kubeapps": update_kubeapps_release_req.data,
-                    "minio": minio_req
-                }
+                data=update_release_response_data.dict()
             )
 
         else: 

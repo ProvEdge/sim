@@ -76,36 +76,39 @@ def create_instance(
     )
 
 
-@router.delete("/delete-instance/{instance}")
+@router.delete(
+    path="/delete-instance/{instance}",
+    response_model=platform_schema.DeleteReleaseResponse
+)
 def delete_instance(
     instance: str,
     identity: keycloak_schema.Identity = Depends(match_identity),
     db: Session = Depends(get_db)
 ):
-    try:
-        delete_instance_req = platform_ops.delete_instance(
-            identity=identity,
-            name=instance,
-            db=db
-        )
+    delete_instance_req = platform_ops.delete_instance(
+        identity=identity,
+        name=instance,
+        db=db
+    )
 
-        if delete_instance_req.status_code == 200:
-            return generate_response(
-                "SUCCESS", 
-                delete_instance_req.message,
-                delete_instance_req.data
-            )
+    if delete_instance_req.status_code == 200:
         return generate_response(
-            "FAILURE", 
+            "SUCCESS", 
             delete_instance_req.message,
             delete_instance_req.data
         )
-
-    except Exception as e:
-        return generate_response(
-            status="FAILURE", 
-            message=str(e)
+    
+    return JSONResponse(
+        status_code=delete_instance_req.status_code,
+        content=generate_response(
+            "FAILURE",
+            delete_instance_req.message,
+            delete_instance_req.data
         )
+    )
+    
+
+
 
 @router.put("/update-instance/{instance}")
 def update_instance(
