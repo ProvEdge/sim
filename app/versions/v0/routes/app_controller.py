@@ -1,13 +1,15 @@
 from fastapi import APIRouter
 #from sqlalchemy.sql.expression import desc
 
-from typing import Union
-
-from database.schemas.generic import ResponseBase, AuthError
-
-from . import users, robots, instances, usages, kubeapps, platform # bills, pricing_formulas, clusters, groups
+from . import users, robots, instances, usages, kubeapps, platform, prefect # bills, pricing_formulas, clusters, groups
 
 router = APIRouter()
+
+router.include_router(
+    prefect.router,
+    prefix="/prefect",
+    tags=["Prefect"],
+)
 
 router.include_router(
     platform.router,

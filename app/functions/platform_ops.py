@@ -1,10 +1,9 @@
-from fastapi.exceptions import HTTPException
-from fastapi_camelcase import CamelModel
+from minio.commonconfig import ENABLED
 import yaml, io
-from animal_case import animalify
 
 from sqlalchemy.orm.session import Session
 from app.functions.general_functions import get_minio_client
+from minio.versioningconfig import VersioningConfig
 from database.schemas import instance_schema, kubeapps_schema, platform_schema, keycloak_schema
 from database.schemas import platform_schema
 from database.schemas.platform_schema import DeleteReleaseInstanceStatus, DeleteReleaseKubeappsStatus, PlatformResponse
@@ -301,6 +300,11 @@ def update_instance(
         if minio_client.bucket_exists(identity.username) == False:
             minio_client.make_bucket(
                 bucket_name=identity.username
+            )
+
+            minio_client.set_bucket_versioning(
+                bucket_name=identity.username,
+                config=VersioningConfig(ENABLED)
             )
 
         minio_req = minio_client.put_object(

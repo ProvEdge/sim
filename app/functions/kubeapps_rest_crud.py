@@ -90,6 +90,29 @@ def post_release(
     )
 
 
+def post_release_v2(
+    id_token: str,
+    namespace: str,
+    release: dict
+) -> KubeappsResponse:
+    
+    route = "/kubeops/v1/clusters/default/namespaces/" + namespace + "/releases"
+    url = kubeapps_server_url + route
+
+    response = requests.post(
+        url=url, 
+        headers=prepare_auth_header(id_token),
+        json=release
+    )
+
+    status_code = response.status_code
+    data = response.json()
+
+    return KubeappsResponse(
+        status_code=status_code,
+        data=data
+    )
+
 def delete_release(
     id_token: str, 
     namespace: str,
