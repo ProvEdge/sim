@@ -29,11 +29,12 @@ def get_robot(
     req = requests.get(url="http://localhost:8000/api/v0/sim/robots/" + robot_type)
     resp = req.json()
     robot = resp["data"]
+    robot_obj = robot_schema.Robot.parse_obj(robot)
     
     logger = prefect.context.get("logger")
     logger.info(str(resp))
     
-    return robot
+    return robot_obj
     
     
     
@@ -43,23 +44,25 @@ def get_robot(
 def create_kubeapps_release_task(
     identity: dict,
     name: str,
-    robot: dict
+    robot: robot_schema.Robot,
 ):
     
     logger = prefect.context.get("logger")
     logger.info(str(robot))
+    logger.info(str(robot.app_repository_namespace))
+    
     
     req = kubeapps_rest_crud.post_release_v2(
         id_token=identity["id_token"],
         namespace=identity["username"],
         release=kubeapps_schema.CreateRelease(
-            appRepositoryResourceName=robot["appRepository"],
-            appRepositoryResourceNamespace=robot["appRepositoryNamespace"],
-            chartName=robot["chartName"],
-            version=robot["chartVersion"],
+            appRepositoryResourceName=robot.app_repository,
+            appRepositoryResourceNamespace=robot.app_repository_namespace,
+            chartName=robot.chart_name,
+            version=robot.chart_version,
             releaseName=name,
             values=manipulate_values_v2(
-                helm_values=robot["helmValues"],
+                helm_values=robot.helm_values,
                 identity=identity
             )
         ).dict()
