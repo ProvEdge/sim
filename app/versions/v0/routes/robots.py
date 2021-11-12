@@ -3,6 +3,8 @@ from fastapi import Depends, APIRouter, HTTPException
 from sqlalchemy.orm import Session
 from typing import Optional, Union
 
+from starlette.responses import JSONResponse
+
 from app import models
 from database.schemas import generic, robot_schema
 from database.database import engine
@@ -14,9 +16,11 @@ models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
 
+
 @router.get(
-    path="", 
-    response_model=Union[robot_schema.ListRobotsResponse, generic.ResponseBase],
+    path="",
+    response_model=Union[robot_schema.ListRobotsResponse,
+                         generic.ResponseBase],
     tags=["Platform"]
 )
 def read_robots(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -24,11 +28,17 @@ def read_robots(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
         robots = robot_crud.get_robots(db, skip=skip, limit=limit)
         return generate_response("SUCCESS", "Robots are returned", robots)
     except Exception as e:
-        return generate_response(status="FAILURE", message=str(e))
+        return JSONResponse(
+            status_code=404,
+            content=generate_response(
+                "FAILURE",
+                "Cannot get robots: " + str(e)
+            )
+        )
 
 
 @router.get(
-    path="/{type}", 
+    path="/{type}",
     response_model=Union[robot_schema.GetRobotResponse, generic.ResponseBase],
     tags=["Platform"]
 )
@@ -36,9 +46,12 @@ def read_robot_by_type(type: str, db: Session = Depends(get_db)):
     try:
         db_robot = robot_crud.get_robot(db, type=type)
         if db_robot is None:
-            return generate_response(
-                "FAILURE",
-                "Robot not found"
+            return JSONResponse(
+                status_code=404,
+                content=generate_response(
+                    "FAILURE",
+                    "Robot not found"
+                )
             )
         return generate_response(
             "SUCCESS",
@@ -46,13 +59,17 @@ def read_robot_by_type(type: str, db: Session = Depends(get_db)):
             db_robot
         )
     except Exception as e:
-        return generate_response(
-            "FAILURE",
-            str(e)
+        return JSONResponse(
+            status_code=404,
+            content=generate_response(
+                "FAILURE",
+                "Cannot get robots: " + str(e)
+            )
         )
 
+
 @router.post(
-    path="", 
+    path="",
     response_model=Union[robot_schema.GetRobotResponse, generic.ResponseBase]
 )
 def create_robot(robot: robot_schema.RobotCreate, db: Session = Depends(get_db)):
@@ -65,14 +82,17 @@ def create_robot(robot: robot_schema.RobotCreate, db: Session = Depends(get_db))
             rbt
         )
     except Exception as e:
-        return generate_response(
-            "FAILURE",
-            str(e)
+        return JSONResponse(
+            status_code=406,
+            content=generate_response(
+                "FAILURE",
+                "Cannot create robots: " + str(e)
+            )
         )
 
 
 @router.patch(
-    path="/{type}", 
+    path="/{type}",
     response_model=Union[robot_schema.GetRobotResponse, generic.ResponseBase]
 )
 def edit_robot(robot: robot_schema.RobotEdit, type: str, db: Session = Depends(get_db)):
@@ -80,9 +100,12 @@ def edit_robot(robot: robot_schema.RobotEdit, type: str, db: Session = Depends(g
         db_robot = robot_crud.get_robot(db, type=type)
 
         if not db_robot:
-            return generate_response(
-                "FAILURE",
-                "This robot does not exist"
+            return JSONResponse(
+                status_code=406,
+                content=generate_response(
+                    "FAILURE",
+                    "Robot not found"
+                )
             )
 
         rbt = robot_crud.edit_robot(db=db, robot=robot, type=type)
@@ -93,22 +116,29 @@ def edit_robot(robot: robot_schema.RobotEdit, type: str, db: Session = Depends(g
             rbt
         )
     except Exception as e:
-        return generate_response(
-            "FAILURE",
-            str(e)
+        return JSONResponse(
+            status_code=406,
+            content=generate_response(
+                "FAILURE",
+                "Cannot edit robots: " + str(e)
+            )
         )
 
+
 @router.delete(
-    path="/{type}", 
+    path="/{type}",
     response_model=Union[robot_schema.GetRobotResponse, generic.ResponseBase]
 )
 def delete_robot(type: str, db: Session = Depends(get_db)):
     try:
         db_robot = robot_crud.get_robot(db, type=type)
         if db_robot is None:
-            return generate_response(
-                "FAILURE",
-                "Robot not found"
+            return JSONResponse(
+                status_code=406,
+                content=generate_response(
+                    "FAILURE",
+                    "Robot not found"
+                )
             )
 
         delete_exec = robot_crud.delete_robot(db, type=type)
@@ -118,7 +148,10 @@ def delete_robot(type: str, db: Session = Depends(get_db)):
             delete_exec
         )
     except Exception as e:
-        return generate_response(
-            "FAILURE",
-            str(e)
+        return JSONResponse(
+            status_code=406,
+            content=generate_response(
+                "FAILURE",
+                "Cannot delete robots: " + str(e)
+            )
         )

@@ -3,6 +3,8 @@ from fastapi import Depends, APIRouter, HTTPException
 from sqlalchemy.orm import Session
 from typing import Optional, Union
 
+from starlette.responses import JSONResponse
+
 from app import models
 from database.schemas import generic, instance_schema, keycloak_schema
 from database.database import engine
@@ -43,8 +45,13 @@ def read_instances(
         
         return generate_response("SUCCESS", "Instances are returned", instances)
     except Exception as e:
-        return generate_response(status="FAILURE", message=str(e))
-
+        return JSONResponse(
+            status_code=404,
+            content=generate_response(
+                "FAILURE",
+                "Cannot get instances: " + str(e)
+            )
+        )
 
 @router.get(
     path="/{id}", 
@@ -63,9 +70,12 @@ def read_instance_by_id(
             credentials=credentials
         )
         if db_instance is None:
-            return generate_response(
-                "FAILURE",
-                "Instance not found"
+            return JSONResponse(
+                status_code=404,
+                content=generate_response(
+                    "FAILURE",
+                    "Instance not found"
+                )
             )
         return generate_response(
             "SUCCESS",
@@ -73,9 +83,12 @@ def read_instance_by_id(
             db_instance
         )
     except Exception as e:
-        return generate_response(
-            "FAILURE",
-            str(e)
+        return JSONResponse(
+            status_code=404,
+            content=generate_response(
+                "FAILURE",
+                "Cannot get instance: " + str(e)
+            )
         )
 
 
@@ -101,9 +114,12 @@ def create_instance(
             ins
         )
     except Exception as e:
-        return generate_response(
-            "FAILURE",
-            str(e)
+        return JSONResponse(
+            status_code=406,
+            content=generate_response(
+                "FAILURE",
+                "Cannot create instance: " + str(e)
+            )
         )
 
 
@@ -125,9 +141,12 @@ def edit_instance(
         )
 
         if not db_instance:
-            return generate_response(
-                "FAILURE",
-                "This instance does not exist"
+            return JSONResponse(
+                status_code=404,
+                content=generate_response(
+                    "FAILURE",
+                    "This instance does not exist"
+                )
             )
 
         ins = instance_crud.edit_instance(
@@ -143,9 +162,12 @@ def edit_instance(
             ins
         )
     except Exception as e:
-        return generate_response(
-            "FAILURE",
-            str(e)
+        return JSONResponse(
+            status_code=406,
+            content=generate_response(
+                "FAILURE",
+                "Cannot create instance: " + str(e)
+            )
         )
 
 @router.delete(
@@ -163,9 +185,12 @@ def delete_instance(
             credentials=credentials
         )
         if db_instance is None:
-            return generate_response(
-                "FAILURE",
-                "Instance not found"
+            return JSONResponse(
+                status_code=404,
+                content=generate_response(
+                    "FAILURE",
+                    "Instance not found"
+                )
             )
 
         delete_exec = instance_crud.delete_instance(
@@ -179,7 +204,10 @@ def delete_instance(
             delete_exec
         )
     except Exception as e:
-        return generate_response(
-            "FAILURE",
-            str(e)
+        return JSONResponse(
+            status_code=406,
+            content=generate_response(
+                "FAILURE",
+                "Cannot delete instance: " + str(e)
+            )
         )
